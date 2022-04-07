@@ -46,8 +46,14 @@ func main() {
 	router.
 		Methods("POST").
 		Path("/pcsc-daemon/readers/{readerIdHex}/smartcard/sendApdus").
-		Name("listCardReaderDevices").
+		Name("sendAPDUs").
 		HandlerFunc(handler.SendAPUs)
+
+	router.
+		Methods("POST").
+		Path("/pcsc-daemon/readers/{readerIdHex}/smartcard/sendApdu").
+		Name("sendAPDU").
+		HandlerFunc(handler.SendAPU)
 
 	server := &http.Server{
 		Addr:    ":1215",

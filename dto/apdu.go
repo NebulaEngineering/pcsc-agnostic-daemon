@@ -12,7 +12,7 @@ type APDUResponse struct {
 	Valid    bool   `json:"isValid"`
 }
 
-func NewAPDUResponse(apdu, response []byte, is7816 bool) *APDUResponse {
+func NewAPDUResponse(apdu, response []byte) *APDUResponse {
 	a := &APDUResponse{}
 	a.Cmd = hex.EncodeToString(apdu)
 	a.Response = hex.EncodeToString(response)
@@ -21,10 +21,12 @@ func NewAPDUResponse(apdu, response []byte, is7816 bool) *APDUResponse {
 		return a
 	}
 
-	if is7816 {
-		a.Valid = utils.VerifyResponseISO7816(response)
-	} else {
-		a.Valid = utils.VerifyResponse(response)
+	if len(apdu) > 0 && (apdu[0]&0x03 == 0x80 || apdu[0] == 0xFF) {
+		if utils.VerifyResponseISO7816(response) {
+			a.Valid = true
+		}
+	} else if utils.VerifyResponse(response) {
+		a.Valid = true
 	}
 
 	return a

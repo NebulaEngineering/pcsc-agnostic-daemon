@@ -4,7 +4,7 @@ func VerifyResponse(response []byte) bool {
 	if len(response) < 1 {
 		return false
 	}
-	return response[0] == 0x90 || response[0] == 0xAF
+	return response[0] == 0x90 || response[0] == 0xAF || response[0] == 0x00
 }
 
 func VerifyResponseISO7816(response []byte) bool {

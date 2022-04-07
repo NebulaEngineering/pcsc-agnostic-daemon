@@ -81,13 +81,13 @@ func (app *app) ConnectCardInReader(nameReader string) (*card.Card, error) {
 
 	r, err := reader.ConnectReader(app.ctx, nameReader)
 	if err != nil {
-		fmt.Println("WWWWWW")
+		// fmt.Println("WWWWWW")
 		return nil, err
 	}
 
 	cardx, err := card.ConnectCard(r)
 	if err != nil {
-		fmt.Printf("ZZZZZZZ: %q", r.Name())
+		// fmt.Printf("ZZZZZZZ: %q", r.Name())
 		return nil, err
 	}
 	app.cardsReader[r.Name()] = cardx
@@ -111,26 +111,32 @@ func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
 
 func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data ...[]byte) (<-chan []byte, error) {
 
+	fmt.Printf("data: %X\n", data)
 	var cardx *card.Card
 	var err error
 
 	if c, ok := app.cardsSession[sessionId]; ok {
 		cardx = c
 	}
-	if cardx != nil || func() bool {
+	if cardx == nil || func() bool {
 		if _, err := cardx.Status(); err != nil {
-			return false
+			return true
 		}
-		return true
+		return false
 	}() {
+		if v, ok := app.cardsReader[nameReader]; ok {
+			v.Disconnect()
+		}
 		cardx, err = app.ConnectCardInReader(nameReader)
 		if err != nil {
+			fmt.Printf("erro: %s", err)
 			return nil, err
 		}
 		// app.cardsReader[nameReader] = cardx
 		app.cardsSession[sessionId] = cardx
 		app.sessionReader[nameReader] = sessionId
 	}
+	fmt.Printf("data: %X\n", data)
 
 	ch := make(chan []byte)
 	go func(cardz *card.Card, closeSs bool) {
@@ -141,10 +147,12 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 			if closeSs {
 				cardz.Disconnect()
 				delete(app.cardsSession, sessionId)
+				delete(app.cardsReader, nameReader)
 			}
 		}()
 		if err := func() (errx error) {
 			for _, d := range data {
+				fmt.Printf("data 1: %X\n", d)
 				response, err := cardz.SendAPDU(d)
 				if err != nil {
 					return err
