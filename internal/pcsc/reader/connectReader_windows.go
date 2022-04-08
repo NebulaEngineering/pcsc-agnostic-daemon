@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ebfe/scard"
 	"gitlab.com/nebulaeng/fleet/pcscrest/internal/pcsc/context"
 )
 
