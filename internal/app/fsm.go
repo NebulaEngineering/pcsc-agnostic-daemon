@@ -203,7 +203,7 @@ func (app *app) runFSM() {
 								}
 							}
 						}
-						log.Printf("readers state: %+v", readers)
+						// log.Printf("readers state: %+v", readers)
 					}
 				}()
 			case sClose:
