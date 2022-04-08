@@ -3,7 +3,6 @@ package app
 import (
 	"errors"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
@@ -172,7 +171,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 			}
 			return nil
 		}(); err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 	}(cardx, closeSession)
 	return ch, nil

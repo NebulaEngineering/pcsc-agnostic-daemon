@@ -104,7 +104,8 @@ func (c *Card) Status() (StatusCode, error) {
 	}
 
 	switch status.State & 0xFF {
-	case scard.Powered | scard.Present | scard.Negotiable:
+	case scard.Powered | scard.Present | scard.Negotiable,
+		scard.Absent | scard.Present:
 		return Ready, nil
 	case scard.Absent:
 		return NotPresent, nil

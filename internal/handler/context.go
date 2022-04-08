@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"gitlab.com/nebulaeng/fleet/pcscrest/dto"
 	"gitlab.com/nebulaeng/fleet/pcscrest/internal/app"
+	"gitlab.com/nebulaeng/fleet/pcscrest/utils"
 )
 
 const (
@@ -26,7 +27,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 
 	str := fmt.Sprintf("%dd, %d:%d:%d", int(from.Hours())/24, int(from.Hours()), int(from.Minutes()), int(from.Seconds()))
 
-	body := fmt.Sprintf(`{"name":"Pcsc Daemon - %s", "version":%q, "upTime":%q}`, osName, version, str)
+	body := fmt.Sprintf(`{"name":"Pcsc Daemon - %s", "version":%q, "upTime":%q}`, utils.OSName, version, str)
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s", body)
