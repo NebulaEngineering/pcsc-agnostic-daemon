@@ -103,7 +103,7 @@ func (app *app) runFSM() {
 					app.ctx = ctx
 					rds, err := ctx.ListReaders()
 					if err != nil {
-						log.Println(err)
+						log.Printf("readers error: %s", err)
 						return
 					}
 					readers = make([]scard.ReaderState, 0)
@@ -162,7 +162,7 @@ func (app *app) runFSM() {
 								}
 							}
 						}
-						// log.Printf("readers state: %+v", readers)
+						log.Printf("readers state: %+v", readers)
 					}
 				}()
 			case sClose:
@@ -176,6 +176,7 @@ func (app *app) runFSM() {
 						} else {
 							app.ctx.Release()
 						}
+						app.ctx = nil
 					}
 				}()
 				app.fmachine.Event(eOpenCmd)

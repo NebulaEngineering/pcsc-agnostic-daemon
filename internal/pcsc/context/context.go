@@ -17,6 +17,10 @@ func New() (*Context, error) {
 		return nil, err
 	}
 
+	if ok, err := ctx.IsValid(); !ok {
+		return nil, err
+	}
+
 	c := &Context{
 		ctx,
 	}
@@ -46,7 +50,7 @@ func (c *Context) Release() error {
 
 func (c *Context) ListReaders() ([]string, error) {
 
-	if c.Context != nil {
+	if c.Context == nil {
 		if ctx, err := scard.EstablishContext(); err != nil {
 			return nil, err
 		} else {

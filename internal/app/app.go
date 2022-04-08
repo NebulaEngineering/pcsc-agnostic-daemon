@@ -52,6 +52,7 @@ func Instance() App {
 		// if err != nil {
 		// 	log.Println(err)
 		// }
+		time.Sleep(1 * time.Second)
 	})
 	return instance
 }
@@ -62,12 +63,19 @@ func (app *app) ListReaders() ([]string, error) {
 	if app.ctx == nil {
 		return nil, errors.New("context with reader is not valid")
 	}
-	return app.ctx.ListReaders()
+	rds, err := app.ctx.ListReaders()
+	if err != nil {
+		return nil, err
+	}
+	return rds, nil
 }
 
 func (app *app) ReaderInformation(key string) (string, error) {
 	app.mux.Lock()
 	defer app.mux.Unlock()
+	if app.ctx == nil {
+		return "", fmt.Errorf("smardcard context is nil")
+	}
 	if app.ctx == nil {
 		return "", errors.New("context with reader is not valid")
 	}
@@ -77,6 +85,9 @@ func (app *app) ReaderInformation(key string) (string, error) {
 func (app *app) ConnectCardInReader(nameReader string) (*card.Card, error) {
 	app.mux.Lock()
 	defer app.mux.Unlock()
+	if app.ctx == nil {
+		return nil, fmt.Errorf("smardcard context is nil")
+	}
 
 	r, err := reader.ConnectReader(app.ctx, nameReader)
 	if err != nil {
@@ -141,14 +152,20 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 	go func(cardz *card.Card, closeSs bool) {
 		app.mux.Lock()
 		defer func() {
-			app.mux.Unlock()
 			close(ch)
 			if closeSs {
-				cardz.Disconnect()
+				if cardz != nil {
+					cardz.Disconnect()
+				}
 				delete(app.cardsSession, sessionId)
 				delete(app.cardsReader, nameReader)
 			}
+			app.mux.Unlock()
 		}()
+		if app.ctx == nil {
+			fmt.Printf("smardcard context is nil")
+			return
+		}
 		if err := func() (errx error) {
 			for _, d := range data {
 				fmt.Printf("data 1: %X\n", d)
