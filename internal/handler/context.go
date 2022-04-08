@@ -108,8 +108,15 @@ func CardInReader(w http.ResponseWriter, r *http.Request) {
 
 	card, err := app.Instance().VerifyCardInReader(nameReader)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "%s", err)
+		log.Println(err)
+		resp := dto.NewSmartCardStatus(nil, dto.NotPresent)
+		body, err := json.Marshal(resp)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "%s", err)
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "%s", body)
 		return
 	}
 
