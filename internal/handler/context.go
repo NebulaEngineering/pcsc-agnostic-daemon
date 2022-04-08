@@ -37,8 +37,15 @@ func ListAllReaders(w http.ResponseWriter, r *http.Request) {
 
 	readers, err := app.Instance().ListReaders()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "%s", err)
+		log.Println(err)
+		resp := make([]*dto.Reader, 0)
+		body, err := json.Marshal(resp)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "%s", err)
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "%s", body)
 		return
 	}
 
