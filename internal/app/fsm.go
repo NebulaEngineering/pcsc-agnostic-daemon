@@ -13,6 +13,7 @@ import (
 
 const (
 	sOpen      = "sOpen"
+	sList      = "sList"
 	sClose     = "sClose"
 	sRestart   = "sRestart"
 	sWaitEvent = "sWait"
@@ -22,6 +23,7 @@ const (
 const (
 	eOpenCmd = "eOpenCmd"
 	eOpened  = "eOpened"
+	eListed  = "eListed"
 	eClosed  = "eClosed"
 	eError   = "eError"
 )
@@ -68,9 +70,10 @@ func NewFSM() *fsm.FSM {
 		sClose,
 		fsm.Events{
 			{Name: eOpenCmd, Src: []string{sClose, sRestart}, Dst: sOpen},
-			{Name: eOpened, Src: []string{sOpen}, Dst: sWaitEvent},
+			{Name: eOpened, Src: []string{sOpen}, Dst: sList},
+			{Name: eListed, Src: []string{sList}, Dst: sWaitEvent},
 			{Name: eClosed, Src: []string{sOpen, sWaitEvent}, Dst: sClose},
-			{Name: eError, Src: []string{sWaitEvent, sOpen}, Dst: sRestart},
+			{Name: eError, Src: []string{sWaitEvent, sList, sOpen}, Dst: sRestart},
 			{Name: eError, Src: []string{sClose, sRestart}, Dst: sFatal},
 		},
 		calls,
@@ -101,9 +104,48 @@ func (app *app) runFSM() {
 						return
 					}
 					app.ctx = ctx
-					rds, err := ctx.ListReaders()
+					// rds, err := ctx.ListReaders()
+					// if err != nil {
+					// 	log.Printf("readers error: %s", err)
+					// 	return
+					// }
+					// readers = make([]scard.ReaderState, 0)
+					// for _, r := range rds {
+					// 	readers = append(readers, scard.ReaderState{
+					// 		Reader:       r,
+					// 		UserData:     nil,
+					// 		CurrentState: scard.StateEmpty,
+					// 		EventState:   scard.StateEmpty,
+					// 		Atr:          nil,
+					// 	})
+					// }
+
+					// if err := app.ctx.GetStatusChange(readers, 1*time.Second); err != nil {
+					// 	log.Println(err)
+					// 	return
+					// }
+					// log.Printf("readers state: %+v", readers)
+					app.fmachine.Event(eOpened)
+				}()
+			case sList:
+				func() {
+					app.mux.Lock()
+					defer app.mux.Unlock()
+					if app.ctx == nil {
+						log.Println("app context is nil")
+						return
+					}
+					if time.Since(lastVerify) < 3*time.Second {
+						return
+					}
+					lastVerify = time.Now()
+					rds, err := app.ctx.ListReaders()
 					if err != nil {
 						log.Printf("readers error: %s", err)
+						return
+					}
+					if len(rds) <= 0 {
+						log.Printf("readers not found: %v", rds)
 						return
 					}
 					readers = make([]scard.ReaderState, 0)
@@ -122,9 +164,8 @@ func (app *app) runFSM() {
 						return
 					}
 					log.Printf("readers state: %+v", readers)
-					app.fmachine.Event(eOpened)
+					app.fmachine.Event(eListed)
 				}()
-
 			case sWaitEvent:
 				func() {
 					app.mux.Lock()
@@ -170,6 +211,8 @@ func (app *app) runFSM() {
 					app.mux.Lock()
 					defer app.mux.Unlock()
 					app.cardsSession = make(map[string]*card.Card)
+					app.cardsReader = make(map[string]*card.Card)
+					app.sessionReader = make(map[string]string)
 					if app.ctx != nil {
 						if ok, err := app.ctx.IsValid(); err != nil || !ok {
 							log.Printf("error context: %s, success: %v", err, ok)
