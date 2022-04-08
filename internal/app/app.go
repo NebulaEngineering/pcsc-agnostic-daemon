@@ -121,7 +121,7 @@ func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
 
 func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data ...[]byte) (<-chan []byte, error) {
 
-	fmt.Printf("data: %X\n", data)
+	// fmt.Printf("data: %X\n", data)
 	var cardx *card.Card
 	var err error
 
@@ -146,7 +146,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 		app.cardsSession[sessionId] = cardx
 		app.sessionReader[nameReader] = sessionId
 	}
-	fmt.Printf("data: %X\n", data)
+	// fmt.Printf("data: %X\n", data)
 
 	ch := make(chan []byte)
 	go func(cardz *card.Card, closeSs bool) {
@@ -168,7 +168,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 		}
 		if err := func() (errx error) {
 			for _, d := range data {
-				fmt.Printf("data 1: %X\n", d)
+				// fmt.Printf("data 1: %X\n", d)
 				response, err := cardz.SendAPDU(d)
 				if err != nil {
 					return err
