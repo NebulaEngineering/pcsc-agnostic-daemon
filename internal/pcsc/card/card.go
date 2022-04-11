@@ -21,6 +21,7 @@ const (
 	NotPresent StatusCode = -1
 )
 
+//String return string with current state's card.
 func (s StatusCode) String() string {
 	switch s {
 	case Ready:
@@ -33,6 +34,7 @@ func (s StatusCode) String() string {
 	return ""
 }
 
+//ConnectCard verify presence's card on reader and return Card instance.
 func ConnectCard(r *reader.Reader) (*Card, error) {
 	if r == nil {
 		return nil, errors.New("reader is not valid")
@@ -45,6 +47,7 @@ func ConnectCard(r *reader.Reader) (*Card, error) {
 	return &Card{card: internalCard}, nil
 }
 
+//String print card features
 func (c *Card) String() string {
 	status, err := c.card.Status()
 	if err != nil {
@@ -69,6 +72,7 @@ func (c *Card) String() string {
 	return str
 }
 
+//SendAPDU send APDU 'data' to card through the reader and wait for a response.
 func (c *Card) SendAPDU(data []byte) ([]byte, error) {
 
 	response, err := c.card.Transmit(data)
@@ -78,6 +82,7 @@ func (c *Card) SendAPDU(data []byte) ([]byte, error) {
 	return response, nil
 }
 
+//Disconnect release card from reader
 func (c *Card) Disconnect() error {
 
 	if err := c.card.Disconnect(scard.LeaveCard); err != nil {
@@ -86,6 +91,7 @@ func (c *Card) Disconnect() error {
 	return nil
 }
 
+//Atr return ATR bytes of card.
 func (c *Card) Atr() ([]byte, error) {
 
 	status, err := c.card.Status()
@@ -96,6 +102,7 @@ func (c *Card) Atr() ([]byte, error) {
 	return status.Atr, nil
 }
 
+//Status return status's card on reader
 func (c *Card) Status() (StatusCode, error) {
 
 	status, err := c.card.Status()

@@ -11,6 +11,7 @@ type Context struct {
 	*scard.Context
 }
 
+//New create a new context to work with readers.
 func New() (*Context, error) {
 	ctx, err := scard.EstablishContext()
 	if err != nil {
@@ -28,6 +29,7 @@ func New() (*Context, error) {
 	return c, nil
 }
 
+//IsValid verify context
 func (c *Context) IsValid() (bool, error) {
 	if c.Context == nil {
 		return false, errors.New("conext is not valid")
@@ -37,6 +39,7 @@ func (c *Context) IsValid() (bool, error) {
 
 }
 
+//Release release context
 func (c *Context) Release() error {
 
 	if c.Context != nil {
@@ -48,6 +51,7 @@ func (c *Context) Release() error {
 	return nil
 }
 
+//ListReaders list readers detected in context.
 func (c *Context) ListReaders() ([]string, error) {
 
 	if c.Context == nil {
@@ -68,6 +72,7 @@ func (c *Context) ListReaders() ([]string, error) {
 	return rds, nil
 }
 
+//ReaderInformation verify reader with regex "key" and return real name's reader
 func (c *Context) ReaderInformation(key string) (string, error) {
 
 	if c.Context != nil {

@@ -9,6 +9,7 @@ import (
 	"gitlab.com/nebulaeng/fleet/pcscrest/internal/pcsc/context"
 )
 
+//ConnectReader verify reader, configure reader to send automatic polling for card detyection and return reader instance.
 func ConnectReader(c *context.Context, reader string) (*Reader, error) {
 	if c == nil {
 		if ctx, err := context.New(); err != nil {
