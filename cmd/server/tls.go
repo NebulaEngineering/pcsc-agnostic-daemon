@@ -37,7 +37,7 @@ func verifyAndCreateFiles(certName, keyName string, create bool) (string, string
 		return cert, key, nil
 	case len(cert) > 0:
 		if len(key) > 0 && fileExists(key) {
-			return "", "", fmt.Errorf("if \"keypath\" is defined, \"certpath\" (%s) could be a file in filesystem", cert)
+			return "", "", fmt.Errorf("if \"keypath\" (%s) is defined, \"certpath\" (%s) could be a file in filesystem", key, cert)
 		}
 		if !pathExists(cert) {
 			return "", "", fmt.Errorf("\"%s\" isn't a valid file in filesystem", cert)
