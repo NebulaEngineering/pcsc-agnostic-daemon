@@ -22,13 +22,14 @@ func verifyAndCreateFiles(certName, keyName string, create bool) (string, string
 	if isDir(certName) {
 		cert = cert + filenameCert
 	}
-	if isDir(keyName) {
-		key = key + filenameKey
-	} else {
+	if len(keyName) <= 0 {
 		key = path.Dir(cert) + filenameKey
+	} else if isDir(keyName) {
+		key = key + filenameKey
+
 	}
 	switch {
-	case create && len(cert) <= 0:
+	case create && len(certName) <= 0:
 		return "", "", fmt.Errorf("option \"create\" is \"true\" but \"certpath\" is not defined")
 	case len(cert) > 0 && len(key) > 0 && !create:
 		return cert, key, nil
@@ -38,11 +39,8 @@ func verifyAndCreateFiles(certName, keyName string, create bool) (string, string
 		if len(key) > 0 && fileExists(key) {
 			return "", "", fmt.Errorf("if \"keypath\" is defined, \"certpath\" (%s) could be a file in filesystem", cert)
 		}
-		if len(key) > 0 && !pathExists(keypath) {
-			return "", "", fmt.Errorf("\"keypath\" (%s) isn't a dir in filsystem", keypath)
-		}
 		if !pathExists(cert) {
-			return "", "", fmt.Errorf("\"%s\" isn't a dir in filsystem", path.Dir(certpath))
+			return "", "", fmt.Errorf("\"%s\" isn't a valid file in filesystem", cert)
 		}
 
 		fcert, err := os.OpenFile(cert, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
