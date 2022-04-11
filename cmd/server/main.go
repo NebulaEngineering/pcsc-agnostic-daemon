@@ -1,16 +1,28 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"gitlab.com/nebulaeng/fleet/pcscrest/internal/handler"
 )
 
+var certpath string
+var keypath string
+var create bool
+
+func init() {
+	flag.StringVar(&certpath, "certpath", "", "path to certificate file, if this option wasn't defined the application will create a new temporal certificatee")
+	flag.StringVar(&keypath, "keypath", "", "path to key file, if this option and \"certpath\" option weren't defined the application will create a new temporal certificate")
+	flag.BoolVar(&create, "c", false, "Create files if they don't exist?")
+}
+
 func main() {
+
+	flag.Parse()
 
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -60,42 +72,10 @@ func main() {
 		Handler: corsWrapper.Handler(router),
 	}
 
-	cert, key, err := newCert()
+	cert, key, err := verifyAndCreateFiles(certpath, keypath, create)
 	if err != nil {
-		log.Fatalf("create cert file error: %s", err)
+		log.Fatalln(err)
 	}
 
-	buf := make([]byte, 1024)
-
-	fcert, err := os.CreateTemp("", "certfile")
-	if err != nil {
-		log.Fatalf("create cert file error: %s", err)
-	}
-
-	for {
-		if n, err := cert.Read(buf); err == nil {
-			if _, err = fcert.Write(buf[:n]); err != nil {
-				log.Fatalln(err)
-			}
-			continue
-		}
-		break
-	}
-
-	fkey, err := os.CreateTemp("", "keyfile")
-	if err != nil {
-		log.Fatalf("create key file error: %s", err)
-	}
-
-	for {
-		if n, err := key.Read(buf); err == nil {
-			if _, err = fkey.Write(buf[:n]); err != nil {
-				log.Fatalln(err)
-			}
-			continue
-		}
-		break
-	}
-
-	log.Fatal(server.ListenAndServeTLS(fcert.Name(), fkey.Name())) //Key and cert are coming from Let's Encrypt
+	log.Fatal(server.ListenAndServeTLS(cert, key))
 }

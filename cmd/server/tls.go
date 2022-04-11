@@ -7,10 +7,85 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"math/big"
 	"net"
+	"os"
+	"path"
 	"time"
 )
+
+func verifyAndCreateFiles(certName, keyName string, create bool) (string, string, error) {
+	cert := certName
+	key := keyName
+
+	if isDir(certName) {
+		cert = cert + filenameCert
+	}
+	if isDir(keyName) {
+		key = key + filenameKey
+	} else {
+		key = path.Dir(cert) + filenameKey
+	}
+	switch {
+	case create && len(cert) <= 0:
+		return "", "", fmt.Errorf("option \"create\" is \"true\" but \"certpath\" is not defined")
+	case len(cert) > 0 && len(key) > 0 && !create:
+		return cert, key, nil
+	case len(cert) > 0 && len(key) > 0 && fileExists(cert):
+		return cert, key, nil
+	case len(cert) > 0:
+		if len(key) > 0 && fileExists(key) {
+			return "", "", fmt.Errorf("if \"keypath\" is defined, \"certpath\" (%s) could be a file in filesystem", cert)
+		}
+		if len(key) > 0 && !pathExists(keypath) {
+			return "", "", fmt.Errorf("\"keypath\" (%s) isn't a dir in filsystem", keypath)
+		}
+		if !pathExists(cert) {
+			return "", "", fmt.Errorf("\"%s\" isn't a dir in filsystem", path.Dir(certpath))
+		}
+
+		fcert, err := os.OpenFile(cert, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
+		if err != nil {
+			return "", "", err
+		}
+		fkey, err := os.OpenFile(key, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
+		if err != nil {
+			return "", "", err
+		}
+		certData, keyData, err := newCert()
+		if err != nil {
+			return "", "", err
+		}
+		if err := writeFile(fcert, certData); err != nil {
+			return "", "", err
+		}
+		if err := writeFile(fkey, keyData); err != nil {
+			return "", "", err
+		}
+		return fcert.Name(), fkey.Name(), nil
+	default:
+		certData, keyData, err := newCert()
+		if err != nil {
+			return "", "", err
+		}
+		fcert, err := os.CreateTemp("", "certtemp")
+		if err != nil {
+			return "", "", err
+		}
+		fkey, err := os.CreateTemp("", "keytemp")
+		if err != nil {
+			return "", "", err
+		}
+		if err := writeFile(fcert, certData); err != nil {
+			return "", "", err
+		}
+		if err := writeFile(fkey, keyData); err != nil {
+			return "", "", err
+		}
+		return fcert.Name(), fkey.Name(), nil
+	}
+}
 
 func newCert() (*bytes.Buffer, *bytes.Buffer, error) {
 	ca := &x509.Certificate{
@@ -59,4 +134,44 @@ func newCert() (*bytes.Buffer, *bytes.Buffer, error) {
 
 	return caPEM, caPrivKeyPEM, nil
 
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if err != nil {
+		return false
+	}
+	return !info.IsDir()
+}
+
+func pathExists(filename string) bool {
+	dir := path.Dir(filename)
+	info, err := os.Stat(dir)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
+}
+
+func isDir(filename string) bool {
+	info, err := os.Stat(filename)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
+}
+
+func writeFile(f *os.File, data *bytes.Buffer) error {
+	defer f.Close()
+	buf := make([]byte, 1024)
+	for {
+		if n, err := data.Read(buf); err == nil {
+			if _, err = f.Write(buf[:n]); err != nil {
+				return err
+			}
+			continue
+		}
+		break
+	}
+	return nil
 }
