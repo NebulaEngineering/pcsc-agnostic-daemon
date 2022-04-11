@@ -11,7 +11,7 @@ import (
 	"math/big"
 	"net"
 	"os"
-	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -23,7 +23,7 @@ func verifyAndCreateFiles(certName, keyName string, create bool) (string, string
 		cert = cert + filenameCert
 	}
 	if len(keyName) <= 0 {
-		key = path.Dir(cert) + filenameKey
+		key = filepath.Dir(cert) + filenameKey
 	} else if isDir(keyName) {
 		key = key + filenameKey
 
@@ -143,7 +143,7 @@ func fileExists(filename string) bool {
 }
 
 func pathExists(filename string) bool {
-	dir := path.Dir(filename)
+	dir := filepath.Dir(filename)
 	info, err := os.Stat(dir)
 	if err != nil {
 		return false
