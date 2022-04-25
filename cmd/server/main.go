@@ -4,6 +4,8 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
+	"os/user"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -72,6 +74,15 @@ func main() {
 		Handler: corsWrapper.Handler(router),
 	}
 
+	if len(certpath) <= 0 {
+		certpath = func() string {
+			usr, err := user.Current()
+			if err == nil {
+				return usr.HomeDir
+			}
+			return os.Getenv("HOME")
+		}()
+	}
 	cert, key, err := verifyAndCreateFiles(certpath, keypath, create)
 	if err != nil {
 		log.Fatalln(err)
