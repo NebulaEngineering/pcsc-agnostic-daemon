@@ -91,13 +91,16 @@ func (app *app) ConnectCardInReader(nameReader string) (*card.Card, error) {
 
 	r, err := reader.ConnectReader(app.ctx, nameReader)
 	if err != nil {
-		// fmt.Println("WWWWWW")
+		fmt.Println("WWWWWW")
 		return nil, err
 	}
 
 	cardx, err := card.ConnectCard(r)
 	if err != nil {
-		// fmt.Printf("ZZZZZZZ: %q", r.Name())
+		fmt.Printf("ZZZZZZZ: %q", r.Name())
+		if c, ok := app.cardsReader[r.Name()]; ok {
+			c.Disconnect()
+		}
 		return nil, err
 	}
 	app.cardsReader[r.Name()] = cardx
@@ -106,13 +109,13 @@ func (app *app) ConnectCardInReader(nameReader string) (*card.Card, error) {
 
 func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
 	if v, ok := app.cardsReader[nameReader]; ok {
-		//fmt.Println("XXXXXX")
+		fmt.Println("XXXXXX")
 		return v, nil
 	}
 
 	r, err := reader.ConnectReader(app.ctx, nameReader)
 	if err != nil {
-		//fmt.Println("YYYYYY")
+		fmt.Println("YYYYYY")
 		return nil, err
 	}
 

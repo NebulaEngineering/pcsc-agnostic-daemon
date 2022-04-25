@@ -191,10 +191,10 @@ func (app *app) runFSM() {
 								// log.Printf("state: %X", r.EventState&0xFF)
 								// log.Printf("reader: %+v", app.cardsReader)
 								if v, ok := app.cardsReader[r.Reader]; ok {
-									if (r.EventState & scard.StateExclusive) != 0x00 {
-										log.Printf("state: %X", r.EventState&0xFF)
-										v.Disconnect()
-									}
+									// if (r.EventState & scard.StateExclusive) != 0x00 {
+									log.Printf("state: %X", r.EventState&0xFF)
+									// }
+									v.Disconnect()
 									delete(app.cardsReader, r.Reader)
 								}
 								if v, ok := app.sessionReader[r.Reader]; ok {

@@ -72,7 +72,7 @@ func (c *Context) ListReaders() ([]string, error) {
 	return rds, nil
 }
 
-//ReaderInformation verify reader with regex "key" and return real name's reader
+//ReaderInformation verify reader with regex "key" and return real name's reader.
 func (c *Context) ReaderInformation(key string) (string, error) {
 
 	if c.Context != nil {
