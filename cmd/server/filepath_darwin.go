@@ -1,5 +1,7 @@
 package main
 
+import "flag"
+
 var filenameKey = "/key.pem"
 var filenameCert = "/cert.pem"
 
