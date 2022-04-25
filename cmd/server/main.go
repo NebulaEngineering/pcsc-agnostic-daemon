@@ -15,7 +15,7 @@ var keypath string
 var create bool
 
 func init() {
-	// flag.StringVar(&certpath, "certpath", "$HOME", "path to certificate file, if this option wasn't defined the application will create a new temporal certificatee")
+	flag.StringVar(&certpath, "certpath", "", "path to certificate file, if this option wasn't defined the application will create a new temporal certificatee")
 	flag.StringVar(&keypath, "keypath", "", "path to key file, if this option and \"certpath\" option weren't defined the application will create a new temporal certificate")
 	flag.BoolVar(&create, "c", true, "Create files if they don't exist?")
 }
