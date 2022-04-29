@@ -2,9 +2,13 @@
 
 Conjunto de herraminetas PCSC expuestas a través de una API REST
 
-## Compilación
+## PRE-REQUISITOS
 
-0. Instalar los drives PCSC de la lectora de tarjetas inteligentes.
+- El binario puede ser compilado en Linux(4 or later), Windows(10 o or later), o MAC(OS).
+- Soporte PCSC en el Sistema Operativo (ejemplo: Linuc => pcsc-lite).
+- Drivers PCSC de la lectora de tarjetas inteligentes.
+
+## Compilación
 
 1. Instalar GOLANG [https://go.dev/doc/install](https://go.dev/doc/install)
 
