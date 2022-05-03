@@ -68,20 +68,18 @@ WantedBy=multi-user.target
 
 Iniciar manualmente el Script en el sistema:
 
-```systemd start pcscrest.service```
+```systemctl start pcscrest.service```
 
 Detener manualmente el Script en el sistema:
 
-```systemd stop pcscrest.service```
+```systemctl stop pcscrest.service```
 
 Habilita la ejecuación automática del Script cuando se inicie el sistema:
 
-```systemd enable pcscrest.service```
+```systemctl enable pcscrest.service```
 
 Revisar el estado del Script:
 
-```systemd status pcscrest.service```
-
-```systemd enable pcscrest.service```
+```systemctl status pcscrest.service```
 
 
