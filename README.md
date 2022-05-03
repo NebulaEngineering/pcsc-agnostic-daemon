@@ -15,19 +15,19 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 2. Descargar el proyecto
 
-```git clone https://gitlab.com/nebulaeng/fleet/pcscrest.git````
+`git clone https://gitlab.com/nebulaeng/fleet/pcscrest.git`
 
 3. Moverse al directorio del binario que será creado
 
-```cd pcscrest/cmd/server```
+`cd pcscrest/cmd/server`
 
 4. Crear el binario
 
-```go build -o pcscrest .```
+`go build -o pcscrest .`
 
 5. Copiar el binario en el directorio final desde el que será ejecutado. Ejemplo:
 
-```cp pcscrest ~/bin/```
+`cp pcscrest ~/bin/`
 
 ## Ejecución
 
@@ -57,6 +57,16 @@ Usage of pcscrest:
 pcscrest starting ...
 pcscrest waiting for requests ...
 ```
+
+La ejecución del binario sin opciones hará que éste busque los archivos del certificado y la llave TLS en las rutas "$HOME/cert.pem" y "$HOME/key.pem" respectivamente. Si estos archivos no existen el binario creará un par de llaves y un certificado autofirmado para el servico TLS dispuesto en el socket "localhost:port".
+
+si se hace uso del certificado creado uatomaticamente por el binario, es decir si no se usa un certifcado provado creado pr la organización, será necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instaldo el certificado ene l sistema) y habilitar la confianza en certificados digitales autofrimados para localhost.
+
+Ejemplo de la habilitación de certificado TLS para localhost en chrome:
+
+[](url)
+
+
 ## Script de inicio [opcional]
 
 A continuación se expone un ejemplo de la configuración de un Script de Inicio para el binario "pcscrest" en un sistema operativo Ubuntu a través de "systemd".
