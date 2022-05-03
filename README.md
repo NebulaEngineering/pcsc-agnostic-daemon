@@ -64,7 +64,7 @@ si se hace uso del certificado creado uatomaticamente por el binario, es decir s
 
 Ejemplo de la habilitación de certificado TLS para localhost en chrome:
 
-[](url)
+![flag_chrome](img/flag_chrome.png)
 
 
 ## Script de inicio [opcional]
