@@ -60,7 +60,7 @@ pcscrest waiting for requests ...
 
 La ejecución del binario sin opciones hará que éste busque los archivos del certificado y la llave TLS en las rutas "$HOME/cert.pem" y "$HOME/key.pem" respectivamente. Si estos archivos no existen el binario creará un par de llaves y un certificado autofirmado para el servico TLS dispuesto en el socket "localhost:port".
 
-si se hace uso del certificado creado uatomaticamente por el binario, es decir si no se usa un certifcado provado creado pr la organización, será necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instaldo el certificado ene l sistema) y habilitar la confianza en certificados digitales autofrimados para localhost.
+si se hace uso del certificado creado automáticamente por el binario, es decir si no se usa un certifcado privado creado pr la organización, será necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instalando el certificado en el sistema) y habilitar la confianza en certificados digitales autofirmados para localhost.
 
 Ejemplo de la habilitación de certificado TLS para localhost en chrome:
 
