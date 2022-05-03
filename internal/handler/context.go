@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
@@ -16,7 +15,7 @@ import (
 )
 
 const (
-	version = "1.0.2"
+	version = "1.0.3"
 )
 
 var tn = time.Now()
@@ -37,7 +36,7 @@ func ListAllReaders(w http.ResponseWriter, r *http.Request) {
 
 	readers, err := app.Instance().ListReaders()
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		resp := make([]*dto.Reader, 0)
 		body, err := json.Marshal(resp)
 		if err != nil {
@@ -115,7 +114,7 @@ func CardInReader(w http.ResponseWriter, r *http.Request) {
 
 	card, err := app.Instance().VerifyCardInReader(nameReader)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		resp := dto.NewSmartCardStatus(nil, dto.NotPresent)
 		body, err := json.Marshal(resp)
 		if err != nil {
@@ -129,7 +128,7 @@ func CardInReader(w http.ResponseWriter, r *http.Request) {
 
 	state, err := card.Status()
 	if err != nil {
-		log.Printf("error CardInReader: %s", err)
+		fmt.Printf("error CardInReader: %s\n", err)
 	}
 
 	atr, _ := card.Atr()

@@ -1,8 +1,8 @@
 package app
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/ebfe/scard"
@@ -12,12 +12,12 @@ import (
 )
 
 const (
-	sOpen      = "sOpen"
-	sList      = "sList"
-	sClose     = "sClose"
-	sRestart   = "sRestart"
-	sWaitEvent = "sWait"
-	sFatal     = "sFatal"
+	sOpen    = "sOpen"
+	sList    = "sList"
+	sClose   = "sClose"
+	sRestart = "sRestart"
+	sWait    = "sWait"
+	sFatal   = "sFatal"
 )
 
 const (
@@ -44,7 +44,7 @@ func NewFSM() *fsm.FSM {
 
 	calls := fsm.Callbacks{
 		"enter_state": func(e *fsm.Event) {
-			log.Printf("FSM SAM state Src: %v, state Dst: %v", e.Src, e.Dst)
+			fmt.Printf("FSM SAM state Src: %v, state Dst: %v\n", e.Src, e.Dst)
 		},
 		"leave_state": func(e *fsm.Event) {
 			if e.Err != nil {
@@ -57,6 +57,8 @@ func NewFSM() *fsm.FSM {
 			}
 		},
 		enterState(sOpen): func(e *fsm.Event) {
+		},
+		enterState(sWait): func(e *fsm.Event) {
 		},
 		enterState(sClose): func(e *fsm.Event) {
 		},
@@ -71,9 +73,9 @@ func NewFSM() *fsm.FSM {
 		fsm.Events{
 			{Name: eOpenCmd, Src: []string{sClose, sRestart}, Dst: sOpen},
 			{Name: eOpened, Src: []string{sOpen}, Dst: sList},
-			{Name: eListed, Src: []string{sList}, Dst: sWaitEvent},
-			{Name: eClosed, Src: []string{sOpen, sWaitEvent}, Dst: sClose},
-			{Name: eError, Src: []string{sWaitEvent, sList, sOpen}, Dst: sRestart},
+			{Name: eListed, Src: []string{sList}, Dst: sWait},
+			{Name: eClosed, Src: []string{sOpen, sWait}, Dst: sClose},
+			{Name: eError, Src: []string{sWait, sList, sOpen}, Dst: sRestart},
 			{Name: eError, Src: []string{sClose, sRestart}, Dst: sFatal},
 		},
 		calls,
@@ -88,11 +90,16 @@ func (app *app) runFSM() {
 	app.frun = true
 	var readers []scard.ReaderState
 	lastVerify := time.Now().Add(-30 * time.Second)
+	currentState := ""
 	go func() {
 		defer func() {
 			app.frun = false
 		}()
 		for {
+			if currentState != app.fmachine.Current() {
+				currentState = app.fmachine.Current()
+				fmt.Printf("currentState: %s\n", currentState)
+			}
 			switch app.fmachine.Current() {
 			case sOpen:
 				func() {
@@ -100,7 +107,7 @@ func (app *app) runFSM() {
 					defer app.mux.Unlock()
 					ctx, err := context.New()
 					if err != nil {
-						log.Println(err)
+						fmt.Println(err)
 						return
 					}
 					app.ctx = ctx
@@ -132,7 +139,7 @@ func (app *app) runFSM() {
 					app.mux.Lock()
 					defer app.mux.Unlock()
 					if app.ctx == nil {
-						log.Println("app context is nil")
+						fmt.Println("app context is nil")
 						return
 					}
 					if time.Since(lastVerify) < 3*time.Second {
@@ -141,11 +148,11 @@ func (app *app) runFSM() {
 					lastVerify = time.Now()
 					rds, err := app.ctx.ListReaders()
 					if err != nil {
-						log.Printf("readers error: %s", err)
+						fmt.Printf("readers error: %s\n", err)
 						return
 					}
 					if len(rds) <= 0 {
-						log.Printf("readers not found: %v", rds)
+						fmt.Printf("readers not found: %v\n", rds)
 						return
 					}
 					readers = make([]scard.ReaderState, 0)
@@ -160,27 +167,31 @@ func (app *app) runFSM() {
 					}
 
 					if err := app.ctx.GetStatusChange(readers, 1*time.Second); err != nil {
-						log.Println(err)
-						return
+						if !errors.Is(err, scard.ErrTimeout) {
+							fmt.Println(err)
+						}
+						// return
 					}
-					log.Printf("readers state: %+v", readers)
+					fmt.Printf("readers state: %+v", readers)
 					app.fmachine.Event(eListed)
 				}()
-			case sWaitEvent:
+			case sWait:
 				func() {
 					app.mux.Lock()
 					defer app.mux.Unlock()
 					if time.Since(lastVerify) > 3*time.Second {
 						lastVerify = time.Now()
 						if ok, err := app.ctx.IsValid(); err != nil || !ok {
-							log.Printf("error context: %s, success: %v", err, ok)
+							fmt.Printf("error context: %s, success: %v\n", err, ok)
 							app.fmachine.Event(eClosed)
 							return
 						}
 						if err := app.ctx.GetStatusChange(readers, 10*time.Millisecond); err != nil {
-							log.Printf("status error: %s", err)
-							app.fmachine.Event(eClosed)
-							return
+							if !errors.Is(err, scard.ErrTimeout) {
+								fmt.Printf("status error: %s\n", err)
+								app.fmachine.Event(eClosed)
+								return
+							}
 						}
 						for _, r := range readers {
 							switch r.EventState & 0xFF {
@@ -192,7 +203,7 @@ func (app *app) runFSM() {
 								// log.Printf("reader: %+v", app.cardsReader)
 								if v, ok := app.cardsReader[r.Reader]; ok {
 									// if (r.EventState & scard.StateExclusive) != 0x00 {
-									log.Printf("state: %X", r.EventState&0xFF)
+									fmt.Printf("disconnect state: %X\n", r.EventState&0xFF)
 									// }
 									v.Disconnect()
 									delete(app.cardsReader, r.Reader)
@@ -203,7 +214,7 @@ func (app *app) runFSM() {
 								}
 							}
 						}
-						// log.Printf("readers state: %+v", readers)
+						// fmt.Printf("readers state: %+v\n", readers)
 					}
 				}()
 			case sClose:
@@ -215,7 +226,7 @@ func (app *app) runFSM() {
 					app.sessionReader = make(map[string]string)
 					if app.ctx != nil {
 						if ok, err := app.ctx.IsValid(); err != nil || !ok {
-							log.Printf("error context: %s, success: %v", err, ok)
+							fmt.Printf("error context: %s, success: %v\n", err, ok)
 						} else {
 							app.ctx.Release()
 						}
