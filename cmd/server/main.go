@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,12 +15,14 @@ import (
 
 var certpath string
 var keypath string
-var create bool
+var port int
+var notcreate bool
 
 func init() {
-	flag.StringVar(&certpath, "certpath", "", "path to certificate file, if this option wasn't defined the application will create a new temporal certificatee")
-	flag.StringVar(&keypath, "keypath", "", "path to key file, if this option and \"certpath\" option weren't defined the application will create a new temporal certificate")
-	flag.BoolVar(&create, "c", true, "Create files if they don't exist?")
+	flag.StringVar(&certpath, "certpath", "", "path to certificate file, if this option wasn't defined the application will create a new certificate in \"$HOME\"")
+	flag.StringVar(&keypath, "keypath", "", "path to key file, if this option and \"certpath\" option weren't defined the application will create a new pair key in \"$HOME\"")
+	flag.BoolVar(&notcreate, "f", false, "don't Create files if they don't exist?")
+	flag.IntVar(&port, "port", 1025, "port in local socket to LISTEN (socket = localhost:port)")
 }
 
 func main() {
@@ -70,7 +73,7 @@ func main() {
 		HandlerFunc(handler.SendAPU)
 
 	server := &http.Server{
-		Addr:    ":1215",
+		Addr:    fmt.Sprintf(":%d", port),
 		Handler: corsWrapper.Handler(router),
 	}
 
@@ -83,10 +86,12 @@ func main() {
 			return os.Getenv("HOME")
 		}()
 	}
-	cert, key, err := verifyAndCreateFiles(certpath, keypath, create)
+	cert, key, err := verifyAndCreateFiles(certpath, keypath, !notcreate)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	fmt.Println("pcscrest starting ...")
+	fmt.Println("pcscrest waiting for requests ...")
 	log.Fatal(server.ListenAndServeTLS(cert, key))
 }
