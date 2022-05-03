@@ -29,6 +29,34 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 ```cp pcscrest ~/bin/```
 
+## Ejecución
+
+A continucación se presentan las opciones de ejecución del binario.
+
+- opciones:
+
+```
+pcscrest --help
+Usage of pcscrest:
+  -certpath string
+    	path to certificate file, if this option wasn't defined the application will create a new certificate in "$HOME"
+  -f	don't Create files if they don't exist?
+  -keypath string
+    	path to key file, if this option and "certpath" option weren't defined the application will create a new pair key in "$HOME"
+  -port int
+    	port in local socket to LISTEN (socket = localhost:port) (default 1025)
+```
+
+
+
+- Ejemplo de ejeución manual:
+
+```
+./pcscrest
+
+pcscrest starting ...
+pcscrest waiting for requests ...
+```
 ## Script de inicio [opcional]
 
 A continuación se expone un ejemplo de la configuración de un Script de Inicio para el binario "pcscrest" en un sistema operativo Ubuntu a través de "systemd".
