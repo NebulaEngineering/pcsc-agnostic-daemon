@@ -21,7 +21,7 @@ func NewAPDUResponse(apdu, response []byte) *APDUResponse {
 		return a
 	}
 
-	if len(apdu) > 0 && (apdu[0]&0x03 == 0x80 || apdu[0] == 0xFF) {
+	if len(apdu) > 0 && (apdu[0]&0xFC == 0x80 || apdu[0] == 0xFF) {
 		if utils.VerifyResponseISO7816(response) {
 			a.Valid = true
 		}
