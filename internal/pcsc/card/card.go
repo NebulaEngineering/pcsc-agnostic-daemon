@@ -3,7 +3,6 @@ package card
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/ebfe/scard"
 	"gitlab.com/nebulaeng/fleet/pcscrest/internal/pcsc/reader"
@@ -125,7 +124,7 @@ func (c *Card) Status() (StatusCode, error) {
 		return Shared, nil
 	}
 
-	log.Printf("statusCode: %X, %X", status.State, (status.State & 0xFF))
+	fmt.Printf("statusCode: %X, %X\n", status.State, (status.State & 0xFF))
 
 	return NotPresent, nil
 }
