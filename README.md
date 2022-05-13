@@ -19,15 +19,15 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 3. Moverse al directorio del binario que será creado
 
-`cd pcscrest/cmd/server`
+`cd pcsc-agnostic-daemon/cmd/server`
 
 4. Crear el binario
 
-`go build -o pcscrest .`
+`go build -o pcsc-agnostic-daemon .`
 
 5. Copiar el binario en el directorio final desde el que será ejecutado. Ejemplo:
 
-`cp pcscrest ~/bin/`
+`cp pcsc-agnostic-daemon ~/bin/`
 
 ## Ejecución
 
@@ -36,8 +36,8 @@ A continucación se presentan las opciones de ejecución del binario.
 - opciones:
 
 ```
-pcscrest --help
-Usage of pcscrest:
+pcsc-agnostic-daemon --help
+Usage of pcsc-agnostic-daemon:
   -certpath string
     	path to certificate file, if this option wasn't defined the application will create a new certificate in "$HOME"
   -f	don't Create files if they don't exist?
@@ -52,10 +52,10 @@ Usage of pcscrest:
 - Ejemplo de ejeución manual:
 
 ```
-./pcscrest
+./pcsc-agnostic-daemon
 
-pcscrest starting ...
-pcscrest waiting for requests ...
+pcsc-agnostic-daemon starting ...
+pcsc-agnostic-daemon waiting for requests ...
 ```
 
 La ejecución del binario sin opciones hará que éste busque los archivos del certificado y la llave TLS en las rutas "$HOME/cert.pem" y "$HOME/key.pem" respectivamente. Si estos archivos no existen el binario creará un par de llaves y un certificado autofirmado para el servico TLS dispuesto en el socket "localhost:port".
@@ -69,22 +69,22 @@ Ejemplo de la habilitación de certificado TLS para localhost en chrome:
 
 ## Script de inicio [opcional]
 
-A continuación se expone un ejemplo de la configuración de un Script de Inicio para el binario "pcscrest" en un sistema operativo Ubuntu a través de "systemd".
+A continuación se expone un ejemplo de la configuración de un Script de Inicio para el binario "pcsc-agnostic-daemon" en un sistema operativo Ubuntu a través de "systemd".
 
 premisas del ejemplo:
 
 - Existe un usuario en el sistema con el username "test"
 - El directorio "home" del usaurio "test" en el sistema es "/home/test"
-- El binario "pcscrest" existe en la ruta "/home/test/bin/pcscrest" y teien permisos de ejecucón para el usaurio "test".
+- El binario "pcsc-agnostic-daemon" existe en la ruta "/home/test/bin/pcsc-agnostic-daemon" y teien permisos de ejecucón para el usaurio "test".
 - Hay un demonio de PCSC instalado ene l sistema (ejemplo: `sudo apt-get install pcscd`).
 - Los drivers de la lectora de tarjetas sin contacto están instalados ene l sistema (ejemplo: `sudo apt-get install libacsccid1`). Es posible que sea necesario instalar los dirvers desde un "paquete" del fabricante de las lectoras. 
 
 Script de inicio:
 
-filename: /etc/systemd/system/pcscrest.service
+filename: /etc/systemd/system/pcsc-agnostic-daemon.service
 
 ```
-# Simple service unit file to use for pcscrest
+# Simple service unit file to use for pcsc-agnostic-daemon
 # startup configurations with systemd.
 # By NebulaE
 # Licensed under GPL V2
@@ -98,7 +98,7 @@ Type=symple
 Restart=always
 RestartSec=3
 User=test
-ExecStart=/home/test/bin/pcscrest
+ExecStart=/home/test/bin/pcsc-agnostic-daemon
 
 [Install]
 WantedBy=multi-user.target
@@ -106,18 +106,18 @@ WantedBy=multi-user.target
 
 Iniciar manualmente el Script en el sistema:
 
-```systemctl start pcscrest.service```
+```systemctl start pcsc-agnostic-daemon.service```
 
 Detener manualmente el Script en el sistema:
 
-```systemctl stop pcscrest.service```
+```systemctl stop pcsc-agnostic-daemon.service```
 
 Habilita la ejecuación automática del Script cuando se inicie el sistema:
 
-```systemctl enable pcscrest.service```
+```systemctl enable pcsc-agnostic-daemon.service```
 
 Revisar el estado del Script:
 
-```systemctl status pcscrest.service```
+```systemctl status pcsc-agnostic-daemon.service```
 
 

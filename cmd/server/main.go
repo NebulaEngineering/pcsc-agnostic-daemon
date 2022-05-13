@@ -91,7 +91,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fmt.Println("pcscrest starting ...")
-	fmt.Println("pcscrest waiting for requests ...")
+	fmt.Println("pcsc-agnostic-daemon starting ...")
+	fmt.Println("pcsc-agnostic-daemon waiting for requests ...")
 	log.Fatal(server.ListenAndServeTLS(cert, key))
 }
