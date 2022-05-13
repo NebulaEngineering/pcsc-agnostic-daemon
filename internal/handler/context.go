@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"gitlab.com/nebulaeng/fleet/pcscrest/dto"
-	"gitlab.com/nebulaeng/fleet/pcscrest/internal/app"
-	"gitlab.com/nebulaeng/fleet/pcscrest/utils"
+	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/dto"
+	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/app"
+	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/utils"
 )
 
 const (

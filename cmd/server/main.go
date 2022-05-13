@@ -10,7 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
-	"gitlab.com/nebulaeng/fleet/pcscrest/internal/handler"
+	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/handler"
 )
 
 var certpath string

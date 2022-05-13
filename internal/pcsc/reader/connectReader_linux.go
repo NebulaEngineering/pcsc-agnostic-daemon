@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/ebfe/scard"
-	"gitlab.com/nebulaeng/fleet/pcscrest/internal/pcsc/context"
+	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/context"
 )
 
 //ConnectReader verify reader, configure reader to send automatic polling for card detyection and return reader instance.

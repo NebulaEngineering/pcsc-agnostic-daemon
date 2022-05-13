@@ -15,7 +15,7 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 2. Descargar el proyecto
 
-`git clone https://gitlab.com/nebulaeng/fleet/pcscrest.git`
+`git clone https://gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon.git`
 
 3. Moverse al directorio del binario que será creado
 
