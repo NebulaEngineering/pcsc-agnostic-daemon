@@ -1,4 +1,4 @@
-module gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon
+module github.com/nebulaengineering/pcsc-agnostic-daemon
 
 go 1.16
 

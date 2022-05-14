@@ -3,7 +3,7 @@ package dto
 import (
 	"encoding/hex"
 
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/utils"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/utils"
 )
 
 type APDUResponse struct {

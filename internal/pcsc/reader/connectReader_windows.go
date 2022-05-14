@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/context"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
 )
 
 //ConnectReader verify reader and return reader instance.

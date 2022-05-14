@@ -7,8 +7,8 @@ import (
 
 	"github.com/ebfe/scard"
 	"github.com/looplab/fsm"
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/card"
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/context"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/card"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
 )
 
 const (

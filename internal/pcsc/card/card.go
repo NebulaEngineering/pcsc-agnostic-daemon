@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ebfe/scard"
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/reader"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/reader"
 )
 
 type Card struct {

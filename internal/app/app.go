@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/looplab/fsm"
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/card"
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/context"
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/reader"
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/utils"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/card"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/reader"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/utils"
 )
 
 type app struct {

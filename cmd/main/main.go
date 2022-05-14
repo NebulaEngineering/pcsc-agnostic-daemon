@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/app"
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/card"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/app"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/card"
 )
 
 func main() {

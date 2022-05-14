@@ -2,7 +2,7 @@ package reader
 
 import (
 	"github.com/ebfe/scard"
-	"gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon/internal/pcsc/context"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
 )
 
 type Reader struct {
