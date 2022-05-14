@@ -33,9 +33,9 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 `go install https://github.com/nebulaengineering/pcsc-agnostic-daemon/cmd/server@latest``
 
-El binario será instalado en el directorio "$GOPATH/bin" con el nombre original del paquete ("server" en este caso) "$GOPATH/go/bin/server. Se recomienda copiar el bainrio en la ruta de los binarios del usuario del sietema "~/bin" ("$HOME/bin").
+El binario será instalado en el directorio "$GOPATH/bin" con el nombre original del paquete ("server" en este caso) "$GOPATH/go/bin/server. Se recomienda copiar el binario en la ruta de los binarios del usuario del sistema "~/bin" ("$HOME/bin").
 
-`cp $GOPATH/bin/server ~/bin/`
+`cp $GOPATH/bin/server ~/bin/pcsc-agnostic-daemon`
 
 ## Ejecución
 
