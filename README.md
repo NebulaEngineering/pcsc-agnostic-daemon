@@ -15,7 +15,7 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 2. Descargar el proyecto
 
-`git clone https://gitlab.com/nebulaeng/rcc-tpc-bq/pcsc-agnostic-daemon.git`
+`git clone https://github.com/nebulaengineering/pcsc-agnostic-daemon.git`
 
 3. Moverse al directorio del binario que será creado
 
@@ -28,6 +28,14 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 5. Copiar el binario en el directorio final desde el que será ejecutado. Ejemplo:
 
 `cp pcsc-agnostic-daemon ~/bin/`
+
+6. (OPCIONAL) se puede hacer una instalación "directa" desde "go" con la instrucción:
+
+`go install https://github.com/nebulaengineering/pcsc-agnostic-daemon/cmd/server@latest``
+
+El binario será instalado en el directorio "$GOPATH/bin" con el nombre original del paquete ("server" en este caso) "$GOPATH/go/bin/server. Se recomienda copiar el bainrio en la ruta de los binarios del usuario del sietema "~/bin" ("$HOME/bin").
+
+`cp $GOPATH/bin/server ~/bin/`
 
 ## Ejecución
 
