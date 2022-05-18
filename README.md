@@ -92,9 +92,9 @@ premisas del ejemplo:
 
 - Existe un usuario en el sistema con el username "test"
 - El directorio "home" del usaurio "test" en el sistema es "/home/test"
-- El binario "pcsc-agnostic-daemon" existe en la ruta "/home/test/bin/pcsc-agnostic-daemon" y teien permisos de ejecucón para el usaurio "test".
-- Hay un demonio de PCSC instalado ene l sistema (ejemplo: `sudo apt-get install pcscd`).
-- Los drivers de la lectora de tarjetas sin contacto están instalados ene l sistema (ejemplo: `sudo apt-get install libacsccid1`). Es posible que sea necesario instalar los dirvers desde un "paquete" del fabricante de las lectoras. 
+- El binario "pcsc-agnostic-daemon" existe en la ruta "/home/test/bin/pcsc-agnostic-daemon" y tiene permisos de ejecución para el usuario "test".
+- Hay un demonio de PCSC instalado en el sistema (ejemplo: `sudo apt-get install pcscd`).
+- Los drivers de la lectora de tarjetas sin contacto están instalados en el sistema (ejemplo: `sudo apt-get install libacsccid1`). Es posible que sea necesario instalar los dirvers desde un "paquete" del fabricante de las lectoras. 
 
 Script de inicio:
 
