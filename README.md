@@ -39,7 +39,7 @@ El binario será instalado en el directorio "$GOPATH/bin" con el nombre original
 
 ## Ejecución
 
-A continucación se presentan las opciones de ejecución del binario.
+A continuación se presentan las opciones de ejecución del binario.
 
 - opciones:
 
@@ -73,7 +73,7 @@ Ingrese a la siguiente URL con un browser para verificar la correcta ejecuación
 
 [https://localhost:1215/pcsc-daemon/readers](https://localhost:1215/pcsc-daemon/readers)
 
-Deberúa ver un listado de lectoras PCSC conenctadas.
+Debería ver un listado de lectoras PCSC conectadas.
 
 Si se hace uso del certificado creado automáticamente por el binario, es decir si no se usa un certifcado privado creado pr la organización, será necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instalando el certificado en el sistema) y habilitar la confianza en certificados digitales autofirmados para localhost.
 
