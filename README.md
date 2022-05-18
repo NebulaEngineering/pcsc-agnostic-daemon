@@ -25,11 +25,23 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 `go build -o pcsc-agnostic-daemon .`
 
-5. Copiar el binario en el directorio final desde el que será ejecutado. Ejemplo:
+5. Probar el binario
+
+para ejecutar el binario en pruebas o desarrollo, desde la rura actual:
+
+`./pcsc-agnostic-daemon`
+
+Ingrese a la siguiente URL con un browser para verificar la correcta ejecuación del binario:
+
+`https://localhost:1215/pcsc-daemon/readers`
+
+(es probable que tenga que habilitar alguna opción que permita el consumo de certificados dígitales de localhost)
+
+6. (OPTIONAL) Copiar el binario en el directorio final desde el que será ejecutado. Ejemplo:
 
 `cp pcsc-agnostic-daemon ~/bin/`
 
-6. (OPCIONAL) se puede hacer una instalación "directa" desde "go" con la instrucción:
+7. (OPCIONAL) se puede hacer una instalación "directa" desde "go" con la instrucción:
 
 `go install https://github.com/nebulaengineering/pcsc-agnostic-daemon/cmd/server@latest``
 
@@ -68,7 +80,14 @@ pcsc-agnostic-daemon waiting for requests ...
 
 La ejecución del binario sin opciones hará que éste busque los archivos del certificado y la llave TLS en las rutas "$HOME/cert.pem" y "$HOME/key.pem" respectivamente. Si estos archivos no existen el binario creará un par de llaves y un certificado autofirmado para el servico TLS dispuesto en el socket "localhost:port".
 
-si se hace uso del certificado creado automáticamente por el binario, es decir si no se usa un certifcado privado creado pr la organización, será necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instalando el certificado en el sistema) y habilitar la confianza en certificados digitales autofirmados para localhost.
+
+Ingrese a la siguiente URL con un browser para verificar la correcta ejecuación del binario:
+
+`https://localhost:1215/pcsc-daemon/readers`
+
+Deberúa ver un listado de lectoras PCSC conenctadas.
+
+Si se hace uso del certificado creado automáticamente por el binario, es decir si no se usa un certifcado privado creado pr la organización, será necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instalando el certificado en el sistema) y habilitar la confianza en certificados digitales autofirmados para localhost.
 
 Ejemplo de la habilitación de certificado TLS para localhost en chrome:
 
