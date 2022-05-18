@@ -25,23 +25,11 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 `go build -o pcsc-agnostic-daemon .`
 
-5. Probar el binario
-
-para ejecutar el binario en pruebas o desarrollo, desde la rura actual:
-
-`./pcsc-agnostic-daemon`
-
-Ingrese a la siguiente URL con un browser para verificar la correcta ejecuación del binario:
-
-`https://localhost:1215/pcsc-daemon/readers`
-
-(es probable que tenga que habilitar alguna opción que permita el consumo de certificados dígitales de localhost)
-
-6. (OPTIONAL) Copiar el binario en el directorio final desde el que será ejecutado. Ejemplo:
+5. (OPTIONAL) Copiar el binario en el directorio final desde el que será ejecutado. Ejemplo:
 
 `cp pcsc-agnostic-daemon ~/bin/`
 
-7. (OPCIONAL) se puede hacer una instalación "directa" desde "go" con la instrucción:
+6. (OPCIONAL) se puede hacer una instalación "directa" desde "go" con la instrucción:
 
 `go install https://github.com/nebulaengineering/pcsc-agnostic-daemon/cmd/server@latest``
 
@@ -83,7 +71,7 @@ La ejecución del binario sin opciones hará que éste busque los archivos del c
 
 Ingrese a la siguiente URL con un browser para verificar la correcta ejecuación del binario:
 
-`https://localhost:1215/pcsc-daemon/readers`
+[https://localhost:1215/pcsc-daemon/readers](https://localhost:1215/pcsc-daemon/readers)
 
 Deberúa ver un listado de lectoras PCSC conenctadas.
 
