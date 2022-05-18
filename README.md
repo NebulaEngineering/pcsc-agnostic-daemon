@@ -52,7 +52,7 @@ Usage of pcsc-agnostic-daemon:
   -keypath string
     	path to key file, if this option and "certpath" option weren't defined the application will create a new pair key in "$HOME"
   -port int
-    	port in local socket to LISTEN (socket = localhost:port) (default 1025)
+    	port in local socket to LISTEN (socket = localhost:port) (default 1215)
 ```
 
 
@@ -71,6 +71,8 @@ La ejecución del binario sin opciones hará que éste busque los archivos del c
 si se hace uso del certificado creado automáticamente por el binario, es decir si no se usa un certifcado privado creado pr la organización, será necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instalando el certificado en el sistema) y habilitar la confianza en certificados digitales autofirmados para localhost.
 
 Ejemplo de la habilitación de certificado TLS para localhost en chrome:
+
+[chrome://flags/](chrome://flags/)
 
 ![flag_chrome](img/flag_chrome.png)
 
