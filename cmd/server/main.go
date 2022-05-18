@@ -22,7 +22,7 @@ func init() {
 	flag.StringVar(&certpath, "certpath", "", "path to certificate file, if this option wasn't defined the application will create a new certificate in \"$HOME\"")
 	flag.StringVar(&keypath, "keypath", "", "path to key file, if this option and \"certpath\" option weren't defined the application will create a new pair key in \"$HOME\"")
 	flag.BoolVar(&notcreate, "f", false, "don't Create files if they don't exist?")
-	flag.IntVar(&port, "port", 1025, "port in local socket to LISTEN (socket = localhost:port)")
+	flag.IntVar(&port, "port", 1215, "port in local socket to LISTEN (socket = localhost:port)")
 }
 
 func main() {
