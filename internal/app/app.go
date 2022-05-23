@@ -174,6 +174,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 				// fmt.Printf("data 1: %X\n", d)
 				response, err := cardz.SendAPDU(d)
 				if err != nil {
+					closeSs = true
 					return err
 				}
 				select {
