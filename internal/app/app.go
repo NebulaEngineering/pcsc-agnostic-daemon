@@ -110,6 +110,12 @@ func (app *app) ConnectCardInReader(nameReader string) (*card.Card, error) {
 func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
 	if v, ok := app.cardsReader[nameReader]; ok {
 		// fmt.Println("XXXXXX")
+		if _, err := v.Status(); err != nil {
+			v.Disconnect()
+			delete(app.cardsReader, nameReader)
+			return nil, fmt.Errorf("error VerifyCardInReader: %w", err)
+		}
+
 		return v, nil
 	}
 
