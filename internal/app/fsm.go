@@ -199,7 +199,7 @@ func (app *app) runFSM() {
 								(scard.StateEmpty | scard.StateChanged),
 								(scard.StateEmpty | scard.StateExclusive),
 								(scard.StateEmpty | scard.StateChanged | scard.StateExclusive):
-								// log.Printf("state: %X", r.EventState&0xFF)
+								// fmt.Printf("state: %X\n", r.EventState&0xFF)
 								// log.Printf("reader: %+v", app.cardsReader)
 								if v, ok := app.cardsReader[r.Reader]; ok {
 									// if (r.EventState & scard.StateExclusive) != 0x00 {

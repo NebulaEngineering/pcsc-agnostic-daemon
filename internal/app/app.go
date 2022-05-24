@@ -133,12 +133,15 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 	}
 	if cardx == nil || func() bool {
 		if _, err := cardx.Status(); err != nil {
+			fmt.Printf("error status: %s", err)
+			cardx.Disconnect()
 			return true
 		}
 		return false
 	}() {
 		if v, ok := app.cardsReader[nameReader]; ok {
 			v.Disconnect()
+			delete(app.cardsReader, nameReader)
 		}
 		cardx, err = app.ConnectCardInReader(nameReader)
 		if err != nil {
@@ -154,9 +157,13 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 	ch := make(chan []byte)
 	go func(cardz *card.Card, closeSs bool) {
 		app.mux.Lock()
+		var errF error
 		defer func() {
 			close(ch)
-			if closeSs {
+			if closeSs || errF != nil {
+				if errF != nil {
+					fmt.Println(err)
+				}
 				if cardz != nil {
 					cardz.Disconnect()
 				}
@@ -166,7 +173,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 			app.mux.Unlock()
 		}()
 		if app.ctx == nil {
-			fmt.Printf("smardcard context is nil")
+			errF = fmt.Errorf("smardcard context is nil")
 			return
 		}
 		if err := func() (errx error) {
@@ -174,8 +181,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 				// fmt.Printf("data 1: %X\n", d)
 				response, err := cardz.SendAPDU(d)
 				if err != nil {
-					closeSs = true
-					return err
+					return fmt.Errorf("error sendApud = %w", err)
 				}
 				select {
 				case ch <- response:
@@ -188,11 +194,12 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 						return fmt.Errorf("bad response: [% X]", response)
 					}
 				case <-time.After(3 * time.Second):
+					return fmt.Errorf("sendApdu timeout")
 				}
 			}
 			return nil
 		}(); err != nil {
-			fmt.Println(err)
+			errF = err
 		}
 	}(cardx, closeSession)
 	return ch, nil

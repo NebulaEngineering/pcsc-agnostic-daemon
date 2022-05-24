@@ -83,8 +83,7 @@ func (c *Card) SendAPDU(data []byte) ([]byte, error) {
 
 //Disconnect release card from reader
 func (c *Card) Disconnect() error {
-
-	if err := c.card.Disconnect(scard.LeaveCard); err != nil {
+	if err := c.card.Disconnect(scard.ResetCard); err != nil {
 		return err
 	}
 	return nil
