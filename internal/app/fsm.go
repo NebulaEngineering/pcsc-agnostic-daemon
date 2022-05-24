@@ -200,7 +200,7 @@ func (app *app) runFSM() {
 								(scard.StateEmpty | scard.StateExclusive),
 								(scard.StateEmpty | scard.StateChanged | scard.StateExclusive):
 								// fmt.Printf("state: %X\n", r.EventState&0xFF)
-								// log.Printf("reader: %+v", app.cardsReader)
+								// fmt.Printf("reader: %q\n", r.Reader)
 								if v, ok := app.cardsReader[r.Reader]; ok {
 									// if (r.EventState & scard.StateExclusive) != 0x00 {
 									fmt.Printf("disconnect state: %X\n", r.EventState&0xFF)
@@ -212,6 +212,9 @@ func (app *app) runFSM() {
 									delete(app.sessionReader, r.Reader)
 									delete(app.cardsSession, v)
 								}
+								// default:
+								// 	fmt.Printf("state: %X\n", r.EventState&0xFF)
+								// 	fmt.Printf("reader: %q\n", r.Reader)
 							}
 						}
 						// fmt.Printf("readers state: %+v\n", readers)

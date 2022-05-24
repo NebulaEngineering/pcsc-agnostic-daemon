@@ -133,7 +133,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 	}
 	if cardx == nil || func() bool {
 		if _, err := cardx.Status(); err != nil {
-			fmt.Printf("error status: %s", err)
+			fmt.Printf("error status: %s\n", err)
 			cardx.Disconnect()
 			return true
 		}
@@ -145,7 +145,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 		}
 		cardx, err = app.ConnectCardInReader(nameReader)
 		if err != nil {
-			fmt.Printf("erro: %s", err)
+			fmt.Printf("erro: %s\n", err)
 			return nil, err
 		}
 		// app.cardsReader[nameReader] = cardx
