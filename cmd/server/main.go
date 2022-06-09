@@ -13,21 +13,31 @@ import (
 	"github.com/rs/cors"
 )
 
+const (
+	version = "1.0.0"
+)
+
 var certpath string
 var keypath string
 var port int
 var notcreate bool
+var showversion bool
 
 func init() {
 	flag.StringVar(&certpath, "certpath", "", "path to certificate file, if this option wasn't defined the application will create a new certificate in \"$HOME\"")
 	flag.StringVar(&keypath, "keypath", "", "path to key file, if this option and \"certpath\" option weren't defined the application will create a new pair key in \"$HOME\"")
 	flag.BoolVar(&notcreate, "f", false, "don't Create files if they don't exist?")
+	flag.BoolVar(&showversion, "version", false, "show version")
 	flag.IntVar(&port, "port", 1215, "port in local socket to LISTEN (socket = localhost:port)")
 }
 
 func main() {
 
 	flag.Parse()
+	if showversion {
+		fmt.Printf("version: %s\n", version)
+		os.Exit(2)
+	}
 
 	router := mux.NewRouter().StrictSlash(true)
 
