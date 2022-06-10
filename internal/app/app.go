@@ -28,7 +28,7 @@ type App interface {
 	ReaderInformation(key string) (string, error)
 	ConnectCardInReader(nameReader string) (*card.Card, error)
 	VerifyCardInReader(nameReader string) (*card.Card, error)
-	SendAPUs(nameReader, sessionId string, closeSession bool, data ...[]byte) (<-chan []byte, error)
+	SendAPUs(nameReader, sessionId string, closeSession, debug bool, data ...[]byte) (<-chan []byte, error)
 }
 
 var instance *app
@@ -128,7 +128,7 @@ func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
 	return app.ConnectCardInReader(r.Name())
 }
 
-func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data ...[]byte) (<-chan []byte, error) {
+func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool, data ...[]byte) (<-chan []byte, error) {
 
 	// fmt.Printf("data: %X\n", data)
 	var cardx *card.Card
@@ -184,14 +184,19 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession bool, data .
 		}
 		if err := func() (errx error) {
 			for _, d := range data {
-				// fmt.Printf("data 1: %X\n", d)
+				if debug {
+					fmt.Printf("request APDU: [% X]\n", d)
+				}
 				response, err := cardz.SendAPDU(d)
 				if err != nil {
 					return fmt.Errorf("error sendApud = %w", err)
 				}
+				if debug {
+					fmt.Printf("response APDU: [% X]\n", response)
+				}
 				select {
 				case ch <- response:
-					if len(d) > 0 && (d[0]&0x03 == 0x80 || d[0] == 0xFF) {
+					if len(d) > 0 && (d[0]&0xFC == 0x80 || d[0] == 0xFF) {
 						// fmt.Printf("evaluation: [ %X ], [ %X ]\n", d, response)
 						if !utils.VerifyResponseISO7816(response) {
 							return fmt.Errorf("bad response: [% X]", response)

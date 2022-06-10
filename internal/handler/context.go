@@ -204,7 +204,8 @@ func SendAPUs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := app.Instance().SendAPUs(nameReader, keys.SessionId, keys.CloseSession, apdus...)
+	debug := utils.Debug
+	ch, err := app.Instance().SendAPUs(nameReader, keys.SessionId, keys.CloseSession, debug, apdus...)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "%s", err)
@@ -283,7 +284,8 @@ func SendAPU(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := app.Instance().SendAPUs(nameReader, keys.SessionId, keys.CloseSession, apdu)
+	debug := utils.Debug
+	ch, err := app.Instance().SendAPUs(nameReader, keys.SessionId, keys.CloseSession, debug, apdu)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "%s", err)

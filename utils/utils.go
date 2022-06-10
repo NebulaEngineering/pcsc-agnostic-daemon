@@ -1,5 +1,7 @@
 package utils
 
+var Debug bool
+
 func VerifyResponse(response []byte) bool {
 	if len(response) < 1 {
 		return false
