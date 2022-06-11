@@ -210,6 +210,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool,
 			}
 			return nil
 		}(); err != nil {
+			fmt.Println(err)
 			errF = err
 		}
 	}(cardx, closeSession)
