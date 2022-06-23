@@ -31,7 +31,7 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 6. (OPCIONAL) se puede hacer una instalación "directa" desde "go" con la instrucción:
 
-`go install https://github.com/nebulaengineering/pcsc-agnostic-daemon/cmd/server@latest``
+`go install github.com/nebulaengineering/pcsc-agnostic-daemon/cmd/server@latest``
 
 El binario será instalado en el directorio "$GOPATH/bin" con el nombre original del paquete ("server" en este caso) "$GOPATH/go/bin/server. Se recomienda copiar el binario en la ruta de los binarios del usuario del sistema "~/bin" ("$HOME/bin").
 
