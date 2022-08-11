@@ -209,6 +209,7 @@ func SendAPUs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "%s", err)
+		return
 	}
 
 	responses := make([]*dto.APDUResponse, 0)
@@ -224,6 +225,7 @@ func SendAPUs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "%s", err)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -289,6 +291,7 @@ func SendAPU(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "%s", err)
+		return
 	}
 
 	var response *dto.APDUResponse
@@ -303,6 +306,7 @@ func SendAPU(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "%s", err)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
