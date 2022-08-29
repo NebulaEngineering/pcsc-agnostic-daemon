@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	version = "1.0.3"
+	VERSION = "1.0.5"
 )
 
 var tn = time.Now()
@@ -26,7 +26,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 
 	str := fmt.Sprintf("%dd, %d:%d:%d", int(from.Hours())/24, int(from.Hours()), int(from.Minutes()), int(from.Seconds()))
 
-	body := fmt.Sprintf(`{"name":"Pcsc Daemon - %s", "version":%q, "upTime":%q}`, utils.OSName, version, str)
+	body := fmt.Sprintf(`{"name":"Pcsc Daemon - %s", "version":%q, "upTime":%q}`, utils.OSName, VERSION, str)
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s", body)

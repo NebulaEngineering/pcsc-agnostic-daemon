@@ -14,10 +14,6 @@ import (
 	"github.com/rs/cors"
 )
 
-const (
-	version = "1.0.4"
-)
-
 var certpath string
 var keypath string
 var port int
@@ -38,7 +34,7 @@ func main() {
 
 	flag.Parse()
 	if showversion {
-		fmt.Printf("version: %s\n", version)
+		fmt.Printf("version: %s\n", handler.VERSION)
 		os.Exit(2)
 	}
 
@@ -92,6 +88,11 @@ func main() {
 		Handler: corsWrapper.Handler(router),
 	}
 
+	serverHttp := &http.Server{
+		Addr:    fmt.Sprintf(":%d", port+1),
+		Handler: corsWrapper.Handler(router),
+	}
+
 	if len(certpath) <= 0 {
 		certpath = func() string {
 			usr, err := user.Current()
@@ -108,5 +109,8 @@ func main() {
 
 	fmt.Println("pcsc-agnostic-daemon starting ...")
 	fmt.Println("pcsc-agnostic-daemon waiting for requests ...")
-	log.Fatal(server.ListenAndServeTLS(cert, key))
+	go func() {
+		log.Fatal(serverHttp.ListenAndServe())
+	}()
+	log.Fatalln(server.ListenAndServeTLS(cert, key))
 }
