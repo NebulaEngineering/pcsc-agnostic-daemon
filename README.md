@@ -13,6 +13,8 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 1. Instalar GOLANG [https://go.dev/doc/install](https://go.dev/doc/install)
 
+la versión mínima requerida es GOLANG 1.16
+
 2. Descargar el proyecto
 
 `git clone https://github.com/nebulaengineering/pcsc-agnostic-daemon.git`
