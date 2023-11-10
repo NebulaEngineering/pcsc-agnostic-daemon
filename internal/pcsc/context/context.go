@@ -84,7 +84,7 @@ func (c *Context) ReaderInformation(key string) (string, error) {
 	}
 	readers, err := c.Context.ListReaders()
 	if err != nil {
-		c.Context = nil
+		// c.Context = nil
 		return "", err
 	}
 
