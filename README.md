@@ -97,7 +97,7 @@ En las nuevas versiones de Chrome la flag anterior ya no está disponible. Sin e
 
 [chrome://flags](chrome://flags)
 
-![flag_chrome](img/safe_localhost.png)
+![flag_chrome](img/safe_flags.png)
 
 Añada todas la URL que aparecen en la imagen (https://localhost:1215,https://127.0.0.1:1215,http://127.0.0.1:1216,http://localhost:1216)
 
