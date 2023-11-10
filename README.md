@@ -93,6 +93,14 @@ Ejemplo de la habilitación de certificado TLS para localhost en chrome:
 
 ![flag_chrome](img/flag_chrome.png)
 
+En las nuevas versiones de Chrome la flag anterior ya no está disponible. Sin embargo es posible obtener el mismo resultado añadiendo las URL del demonio en una flag para sitio seguro:
+
+[chrome://flags](chrome://flags)
+
+![flag_chrome](img/safe_localhost.png)
+
+Añada todas la URL que aparecen en la imagen (https://localhost:1215,https://127.0.0.1:1215,http://127.0.0.1:1216,http://localhost:1216)
+
 
 ## Script de inicio [opcional]
 
