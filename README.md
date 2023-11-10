@@ -47,6 +47,10 @@ o si las variables de entorno de GOLANG no estan bien definidas:
 
 `cp ~/go/bin/server ~/bin/pcsc-agnostic-daemon`
 
+
+Verifcar que en las variables de entorno del usuario exista un PATH apuntando al directorio "~/bin/" (crearlo si es neceario)
+
+
 ## Ejecución
 
 A continuación se presentan las opciones de ejecución del binario.
