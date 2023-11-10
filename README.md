@@ -41,6 +41,8 @@ o si las variables de entorno de GOLANG no estan bien definidas:
 
 El binario será instalado en el directorio "$GOPATH/bin" con el nombre original del paquete ("server" en este caso) "$GOPATH/go/bin/server. Se recomienda copiar el binario en la ruta de los binarios del usuario del sistema "~/bin" ("$HOME/bin").
 
+Verifcar que el directorio "$HOME/bin" exista, y si no crearlo, verificar que en las variables de entorno del usuario exista un PATH apuntando al directorio "$HOME/bin/" (por ejemplo en el archivo "$HOME/.profile")
+
 `cp $GOPATH/bin/server ~/bin/pcsc-agnostic-daemon`
 
 o si las variables de entorno de GOLANG no estan bien definidas:
@@ -48,7 +50,6 @@ o si las variables de entorno de GOLANG no estan bien definidas:
 `cp ~/go/bin/server ~/bin/pcsc-agnostic-daemon`
 
 
-Verifcar que en las variables de entorno del usuario exista un PATH apuntando al directorio "~/bin/" (crearlo si es neceario)
 
 
 ## Ejecución
