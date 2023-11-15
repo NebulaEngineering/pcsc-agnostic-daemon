@@ -134,7 +134,7 @@ filename: /etc/systemd/system/pcsc-agnostic-daemon.service
 Description=PCSC local API REST
 
 [Service]
-Type=symple
+Type=simple
 Restart=always
 RestartSec=3
 User=test
