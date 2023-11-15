@@ -20,14 +20,16 @@ var port int
 var notcreate bool
 var showversion bool
 var debug bool
+var ssl bool
 
 func init() {
-	flag.StringVar(&certpath, "certpath", "", "path to certificate file, if this option wasn't defined the application will create a new certificate in \"$HOME\"")
-	flag.StringVar(&keypath, "keypath", "", "path to key file, if this option and \"certpath\" option weren't defined the application will create a new pair key in \"$HOME\"")
+	flag.StringVar(&certpath, "certpath", "", "[ssl enable required] path to certificate file, if this option wasn't defined the application will create a new certificate in \"$HOME\"")
+	flag.StringVar(&keypath, "keypath", "", "[ssl enable required] path to key file, if this option and \"certpath\" option weren't defined the application will create a new pair key in \"$HOME\"")
 	flag.BoolVar(&notcreate, "f", false, "don't Create files if they don't exist?")
+	flag.BoolVar(&ssl, "ssl", false, "enable ssl local service?")
 	flag.BoolVar(&showversion, "version", false, "show version")
 	flag.BoolVar(&debug, "debug", false, "show APDUs in stdout")
-	flag.IntVar(&port, "port", 1215, "port in local socket to LISTEN (socket = localhost:port)")
+	flag.IntVar(&port, "port", 1216, "port in local socket to LISTEN (socket = localhost:port)")
 }
 
 func main() {
@@ -83,13 +85,8 @@ func main() {
 		Name("sendAPDU").
 		HandlerFunc(handler.SendAPU)
 
-	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: corsWrapper.Handler(router),
-	}
-
 	serverHttp := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port+1),
+		Addr:    fmt.Sprintf(":%d", port),
 		Handler: corsWrapper.Handler(router),
 	}
 
@@ -102,15 +99,24 @@ func main() {
 			return os.Getenv("HOME")
 		}()
 	}
-	cert, key, err := verifyAndCreateFiles(certpath, keypath, !notcreate)
-	if err != nil {
-		log.Fatalln(err)
-	}
 
 	fmt.Println("pcsc-agnostic-daemon starting ...")
 	fmt.Println("pcsc-agnostic-daemon waiting for requests ...")
-	go func() {
-		log.Fatal(serverHttp.ListenAndServe())
-	}()
-	log.Fatalln(server.ListenAndServeTLS(cert, key))
+
+	if ssl {
+		cert, key, err := verifyAndCreateFiles(certpath, keypath, !notcreate)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		go func() {
+			serverSSL := &http.Server{
+				Addr:    fmt.Sprintf(":%d", port-1),
+				Handler: corsWrapper.Handler(router),
+			}
+			log.Fatalln(serverSSL.ListenAndServeTLS(cert, key))
+		}()
+	}
+
+	log.Fatalln(serverHttp.ListenAndServe())
+
 }

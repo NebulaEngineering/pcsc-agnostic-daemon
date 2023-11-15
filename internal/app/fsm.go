@@ -9,6 +9,7 @@ import (
 	"github.com/looplab/fsm"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/card"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/utils"
 )
 
 const (
@@ -194,6 +195,9 @@ func (app *app) runFSM() {
 							}
 						}
 						for _, r := range readers {
+							if utils.Debug {
+								fmt.Printf("reader (%q) state: %02X\n", r.Reader, r.EventState&0xFF)
+							}
 							switch r.EventState & 0xFF {
 							case scard.StateEmpty,
 								(scard.StateEmpty | scard.StateChanged),
