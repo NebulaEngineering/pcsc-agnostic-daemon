@@ -62,12 +62,14 @@ A continuación se presentan las opciones de ejecución del binario.
 pcsc-agnostic-daemon --help
 Usage of pcsc-agnostic-daemon:
   -certpath string
-    	path to certificate file, if this option wasn't defined the application will create a new certificate in "$HOME"
+    	[ssl enable required] path to certificate file, if this option wasn't defined the application will create a new certificate in "$HOME"
   -f	don't Create files if they don't exist?
   -keypath string
-    	path to key file, if this option and "certpath" option weren't defined the application will create a new pair key in "$HOME"
+    	[ssl enable required] path to key file, if this option and "certpath" option weren't defined the application will create a new pair key in "$HOME"
   -port int
-    	port in local socket to LISTEN (socket = localhost:port) (default 1215)
+    	port in local socket to LISTEN (socket = localhost:port) (default 1216)
+  -ssl
+	enable ssl local service?
 ```
 
 
@@ -75,24 +77,22 @@ Usage of pcsc-agnostic-daemon:
 - Ejemplo de ejeución manual:
 
 ```
-./pcsc-agnostic-daemon
+~/bin/pcsc-agnostic-daemon
 
 pcsc-agnostic-daemon starting ...
 pcsc-agnostic-daemon waiting for requests ...
 ```
 
-La ejecución del binario sin opciones hará que éste busque los archivos del certificado y la llave TLS en las rutas "$HOME/cert.pem" y "$HOME/key.pem" respectivamente. Si estos archivos no existen el binario creará un par de llaves y un certificado autofirmado para el servico TLS dispuesto en el socket "localhost:port".
-
 
 Ingrese a la siguiente URL con un browser para verificar la correcta ejecuación del binario:
 
-[https://localhost:1215/pcsc-daemon/readers](https://localhost:1215/pcsc-daemon/readers)
+[http://localhost:1216/pcsc-daemon/readers](http://localhost:1216/pcsc-daemon/readers)
 
 Debería ver un listado de lectoras PCSC conectadas.
 
-Si se hace uso del certificado creado automáticamente por el binario, es decir si no se usa un certifcado privado creado pr la organización, será necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instalando el certificado en el sistema) y habilitar la confianza en certificados digitales autofirmados para localhost.
+Si se hace uso de las opción "-ssl" el certificado será creado automáticamente por el binario si no introduce un "path" de archivo para el certificado. Es posible que sea necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instalando el certificado en el sistema) y habilitar la confianza en certificados digitales autofirmados para localhost. El puerto SSL por defecto, si se usa la opción "-ssl", es el puerto -1 (por defecto: 1216 - 1 = 1215)
 
-Ejemplo de la habilitación de certificado TLS para localhost en chrome:
+Ejemplo de la habilitación de tráfico no seguro desde localhost en chrome:
 
 [chrome://flags](chrome://flags)
 
