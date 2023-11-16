@@ -90,7 +90,9 @@ Ingrese a la siguiente URL con un browser para verificar la correcta ejecuación
 
 Debería ver un listado de lectoras PCSC conectadas.
 
-Si se hace uso de las opción "-ssl" el certificado será creado automáticamente por el binario si no introduce un "path" de archivo para el certificado. Es posible que sea necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instalando el certificado en el sistema) y habilitar la confianza en certificados digitales autofirmados para localhost. El puerto SSL por defecto, si se usa la opción "-ssl", es el puerto -1 (por defecto: 1216 - 1 = 1215)
+Si se hace uso de las opción "-ssl" el certificado será creado automáticamente por el binario si no introduce un "path" de archivo para el certificado. Es posible que sea necesario agregar el certificado creado (por defecto en la ruta "$HOME/cert.pem") al sistema de confianza del sistema operativo (probablemente instalando el certificado en el sistema) y habilitar la confianza en certificados digitales autofirmados para localhost.
+
+El puerto SSL por defecto, si se usa la opción "-ssl", es el puerto -1 (por defecto: 1216 - 1 = 1215)
 
 Ejemplo de la habilitación de tráfico no seguro desde localhost en chrome:
 
