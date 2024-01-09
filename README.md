@@ -15,23 +15,7 @@ Conjunto de herraminetas PCSC expuestas a través de una API REST
 
 la versión mínima requerida es GOLANG 1.16
 
-2. Descargar el proyecto
-
-`git clone https://github.com/nebulaengineering/pcsc-agnostic-daemon.git`
-
-3. Moverse al directorio del binario que será creado
-
-`cd pcsc-agnostic-daemon/cmd/server`
-
-4. Crear el binario
-
-`go build -o pcsc-agnostic-daemon .`
-
-5. (OPTIONAL) Copiar el binario en el directorio final desde el que será ejecutado. Ejemplo:
-
-`cp pcsc-agnostic-daemon ~/bin/`
-
-6. (OPCIONAL) se puede hacer una instalación "directa" desde "go" con la instrucción:
+2. (PARA INSTALAR EL BINARIO SIN DESCARGAR EL PROYECTO) Instalación "directa" desde "go" con la instrucción:
 
 `go install github.com/nebulaengineering/pcsc-agnostic-daemon/cmd/server@latest`
 
@@ -48,6 +32,22 @@ Verifcar que el directorio "$HOME/bin" exista, y si no crearlo, verificar que en
 o si las variables de entorno de GOLANG no estan bien definidas:
 
 `cp ~/go/bin/server ~/bin/pcsc-agnostic-daemon`
+
+3. Descargar el proyecto (SIGA EL RESTO DE INSTRUCCIONES SÓLO SI QUIERE DESCARGAR EL CÓDIGO FUENTE)
+
+`git clone https://github.com/nebulaengineering/pcsc-agnostic-daemon.git`
+
+4. Moverse al directorio del binario que será creado
+
+`cd pcsc-agnostic-daemon/cmd/server`
+
+5. Crear el binario
+
+`go build -o pcsc-agnostic-daemon .`
+
+6. (OPTIONAL) Copiar el binario en el directorio final desde el que será ejecutado. Ejemplo:
+
+`cp pcsc-agnostic-daemon ~/bin/`
 
 
 
