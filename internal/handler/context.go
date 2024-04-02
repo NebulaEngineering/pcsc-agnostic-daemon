@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	VERSION = "1.0.8"
+	VERSION = "1.0.10"
 )
 
 var tn = time.Now()
