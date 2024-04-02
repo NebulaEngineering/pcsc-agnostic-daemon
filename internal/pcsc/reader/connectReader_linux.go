@@ -2,6 +2,7 @@ package reader
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"strings"
 
@@ -9,7 +10,13 @@ import (
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
 )
 
-//ConnectReader verify reader, configure reader to send automatic polling for card detyection and return reader instance.
+var forceIso14443_3 bool
+
+func init() {
+	flag.BoolVar(&forceIso14443_3, "force-iso14443-3", false, "Force ISO 14443-4 mode")
+}
+
+// ConnectReader verify reader, configure reader to send automatic polling for card detyection and return reader instance.
 func ConnectReader(c *context.Context, reader string) (*Reader, error) {
 	if c == nil {
 		if ctx, err := context.New(); err != nil {
@@ -48,7 +55,12 @@ func ConnectReader(c *context.Context, reader string) (*Reader, error) {
 		if err != nil {
 			return nil, err
 		}
-		if len(resp1) > 0 && resp1[len(resp1)-1] != 0x8F {
+		if len(resp1) > 0 && resp1[len(resp1)-1] != (0x8F&func() byte {
+			if forceIso14443_3 {
+				return 0x7F
+			}
+			return 0xFF
+		}()) {
 			if _, err := direct.Control(0x42000000+2079, []byte{0x23, 0x01, 0x8F}); err != nil {
 				return nil, err
 			}
