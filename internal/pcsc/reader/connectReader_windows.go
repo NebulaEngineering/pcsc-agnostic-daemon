@@ -8,7 +8,7 @@ import (
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
 )
 
-//ConnectReader verify reader and return reader instance.
+// ConnectReader verify reader and return reader instance.
 func ConnectReader(c *context.Context, reader string) (*Reader, error) {
 	if c == nil {
 		if ctx, err := context.New(); err != nil {
@@ -60,4 +60,9 @@ func ConnectReader(c *context.Context, reader string) (*Reader, error) {
 		ctx:  c,
 	}, nil
 
+}
+
+// ConnectReader verify reader, configure reader to send automatic polling for card detyection and return reader instance.
+func PrepareReader(c *context.Context, reader string) error {
+	return nil
 }

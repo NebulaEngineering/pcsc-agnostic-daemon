@@ -34,7 +34,7 @@ type App interface {
 var instance *app
 var once sync.Once
 
-//getInstance create App
+// getInstance create App
 func Instance() App {
 
 	once.Do(func() {

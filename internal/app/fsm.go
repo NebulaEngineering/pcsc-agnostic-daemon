@@ -3,12 +3,14 @@ package app
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/ebfe/scard"
 	"github.com/looplab/fsm"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/card"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/reader"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/utils"
 )
 
@@ -165,6 +167,15 @@ func (app *app) runFSM() {
 							EventState:   scard.StateEmpty,
 							Atr:          nil,
 						})
+					}
+
+					for _, r := range rds {
+						if strings.Contains(r, "ACS") {
+							if err := reader.PrepareReader(app.ctx, r); err != nil {
+								fmt.Println(err)
+							}
+							break
+						}
 					}
 
 					if err := app.ctx.GetStatusChange(readers, 1*time.Second); err != nil {
