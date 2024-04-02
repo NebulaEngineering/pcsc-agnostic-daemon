@@ -14,7 +14,7 @@ import (
 var forceIso14443_3 bool
 
 func init() {
-	flag.BoolVar(&forceIso14443_3, "force-iso14443-3", false, "Force ISO 14443-4 mode")
+	flag.BoolVar(&forceIso14443_3, "force-iso14443-3", false, "Force ISO 14443-3 mode")
 }
 
 // ConnectReader verify reader, configure reader to send automatic polling for card detyection and return reader instance.
