@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -14,13 +15,13 @@ import (
 )
 
 type app struct {
-	ctx           *context.Context
-	cardsReader   map[string]*card.Card
-	cardsSession  map[string]*card.Card
-	sessionReader map[string]string
-	frun          bool
-	fmachine      *fsm.FSM
-	mux           sync.Mutex
+	ctx         *context.Context
+	cardsReader map[string]*card.Card
+	// cardsSession  map[string]*card.Card
+	// sessionReader map[string]string
+	frun     bool
+	fmachine *fsm.FSM
+	mux      sync.Mutex
 }
 
 type App interface {
@@ -39,10 +40,10 @@ func Instance() App {
 
 	once.Do(func() {
 		instance = &app{
-			mux:           sync.Mutex{},
-			cardsSession:  make(map[string]*card.Card),
-			cardsReader:   make(map[string]*card.Card),
-			sessionReader: make(map[string]string),
+			mux: sync.Mutex{},
+			// cardsSession:  make(map[string]*card.Card),
+			cardsReader: make(map[string]*card.Card),
+			// sessionReader: make(map[string]string),
 		}
 
 		instance.fmachine = NewFSM()
@@ -132,51 +133,65 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool,
 
 	// fmt.Printf("data: %X\n", data)
 	var cardx *card.Card
-	var err error
+	// var err error
 
-	if c, ok := app.cardsSession[sessionId]; ok {
-		cardx = c
-	}
-	if cardx == nil || func() bool {
-		if _, err := cardx.Status(); err != nil {
-			fmt.Printf("error status: %s\n", err)
-			cardx.Disconnect()
-			return true
+	if err := func() error {
+		if c, ok := app.cardsReader[nameReader]; !ok {
+			return fmt.Errorf("card in reader not found (%s)", nameReader)
+		} else {
+			if _, err := c.Status(); err != nil {
+				c.Disconnect()
+				// delete(app.cardsReader, nameReader)
+				return fmt.Errorf("error status: %w", err)
+			} else {
+				if len(c.GetSessionID()) <= 0 {
+					c.SetSessionID(sessionId)
+				} else if !strings.EqualFold(sessionId, c.GetSessionID()) {
+					c.Disconnect()
+					return fmt.Errorf("session id not match (%s)", sessionId)
+				}
+				cardx = c
+				return nil
+			}
 		}
-		return false
-	}() {
-		if v, ok := app.cardsReader[nameReader]; ok {
-			v.Disconnect()
-			delete(app.cardsReader, nameReader)
-		}
-		cardx, err = app.ConnectCardInReader(nameReader)
+		return fmt.Errorf("error card not found")
+	}(); err != nil {
+		fmt.Println(err)
+		card, err := app.ConnectCardInReader(nameReader)
 		if err != nil {
 			fmt.Printf("erro: %s\n", err)
 			return nil, err
 		}
-		// app.cardsReader[nameReader] = cardx
-		app.cardsSession[sessionId] = cardx
-		app.sessionReader[nameReader] = sessionId
+
+		card.SetSessionID(sessionId)
+		cardx = card
+
+		app.cardsReader[nameReader] = cardx
 	}
+
+	// // app.cardsReader[nameReader] = cardx
+	// app.cardsSession[sessionId] = cardx
+	// app.sessionReader[nameReader] = sessionId
+
 	// fmt.Printf("data: %X\n", data)
 
 	ch := make(chan []byte)
 	go func(cardz *card.Card, closeSs bool) {
+		defer close(ch)
 		app.mux.Lock()
+		defer app.mux.Unlock()
 		var errF error
 		defer func() {
-			close(ch)
 			if closeSs || errF != nil {
 				if errF != nil {
-					fmt.Println(err)
+					fmt.Println(errF)
 				}
 				if cardz != nil {
 					cardz.Disconnect()
 				}
-				delete(app.cardsSession, sessionId)
+				// delete(app.cardsSession, sessionId)
 				delete(app.cardsReader, nameReader)
 			}
-			app.mux.Unlock()
 		}()
 		if app.ctx == nil {
 			errF = fmt.Errorf("smardcard context is nil")
@@ -204,7 +219,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool,
 					} else if !utils.VerifyResponse(response) {
 						return fmt.Errorf("bad response: [% X]", response)
 					}
-				case <-time.After(3 * time.Second):
+				case <-time.After(1 * time.Second):
 					return fmt.Errorf("sendApdu timeout")
 				}
 			}

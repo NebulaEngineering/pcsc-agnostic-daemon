@@ -8,7 +8,6 @@ import (
 
 	"github.com/ebfe/scard"
 	"github.com/looplab/fsm"
-	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/card"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/reader"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/utils"
@@ -74,7 +73,7 @@ func NewFSM() *fsm.FSM {
 	f := fsm.NewFSM(
 		sClose,
 		fsm.Events{
-			{Name: eOpenCmd, Src: []string{sClose, sRestart}, Dst: sOpen},
+			{Name: eOpenCmd, Src: []string{sClose, sRestart, sFatal}, Dst: sOpen},
 			{Name: eOpened, Src: []string{sOpen}, Dst: sList},
 			{Name: eListed, Src: []string{sList}, Dst: sWait},
 			{Name: eClosed, Src: []string{sOpen, sWait}, Dst: sClose},
@@ -138,25 +137,25 @@ func (app *app) runFSM() {
 					app.fmachine.Event(eOpened)
 				}()
 			case sList:
-				func() {
+				if err := func() error {
 					app.mux.Lock()
 					defer app.mux.Unlock()
 					if app.ctx == nil {
-						fmt.Println("app context is nil")
-						return
+						return fmt.Errorf("app context is nil")
 					}
 					if time.Since(lastVerify) < 3*time.Second {
-						return
+
+						return fmt.Errorf("time verify: %v", time.Since(lastVerify))
 					}
 					lastVerify = time.Now()
 					rds, err := app.ctx.ListReaders()
 					if err != nil {
-						fmt.Printf("readers error: %s\n", err)
-						return
+
+						return fmt.Errorf("readers error: %s", err)
 					}
 					if len(rds) <= 0 {
-						fmt.Printf("readers not found: %v\n", rds)
-						return
+						// fmt.Printf("readers not found: %v\n", rds)
+						return fmt.Errorf("readers not found: %v", rds)
 					}
 					readers = make([]scard.ReaderState, 0)
 					for _, r := range rds {
@@ -186,7 +185,11 @@ func (app *app) runFSM() {
 					}
 					fmt.Printf("readers state: %+v", readers)
 					app.fmachine.Event(eListed)
-				}()
+					return nil
+				}(); err != nil {
+					fmt.Println(err)
+					app.fmachine.Event(eError)
+				}
 			case sWait:
 				func() {
 					app.mux.Lock()
@@ -223,28 +226,33 @@ func (app *app) runFSM() {
 									v.Disconnect()
 									delete(app.cardsReader, r.Reader)
 								}
-								if v, ok := app.sessionReader[r.Reader]; ok {
-									delete(app.sessionReader, r.Reader)
-									delete(app.cardsSession, v)
-								}
-								// default:
-								// 	fmt.Printf("state: %X\n", r.EventState&0xFF)
-								// 	fmt.Printf("reader: %q\n", r.Reader)
+								// if v, ok := app.sessionReader[r.Reader]; ok {
+								// 	delete(app.sessionReader, r.Reader)
+								// 	delete(app.cardsSession, v)
+								// }
+								// // default:
+								// // 	fmt.Printf("state: %X\n", r.EventState&0xFF)
+								// // 	fmt.Printf("reader: %q\n", r.Reader)
 							}
 						}
 						// fmt.Printf("readers state: %+v\n", readers)
 					}
 				}()
-			case sClose:
+			case sClose, sFatal, sRestart:
 				func() {
 					app.mux.Lock()
 					defer app.mux.Unlock()
-					app.cardsSession = make(map[string]*card.Card)
-					app.cardsReader = make(map[string]*card.Card)
-					app.sessionReader = make(map[string]string)
+					// app.cardsSession = make(map[string]*card.Card)
+					for k, v := range app.cardsReader {
+						v.Disconnect()
+						delete(app.cardsReader, k)
+					}
+					// app.cardsReader = make(map[string]*card.Card)
+					// app.sessionReader = make(map[string]string)
 					if app.ctx != nil {
 						if ok, err := app.ctx.IsValid(); err != nil || !ok {
 							fmt.Printf("error context: %s, success: %v\n", err, ok)
+							app.ctx.Release()
 						} else {
 							app.ctx.Release()
 						}

@@ -11,20 +11,14 @@ import (
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/utils"
 )
 
-var forceIso14443_3 bool
-
 func init() {
-	flag.BoolVar(&forceIso14443_3, "force-iso14443-3", false, "Force ISO 14443-3 mode")
+	flag.BoolVar(&forceIso14443_4, "force-iso14443-4", false, "Force ISO 14443-4 mode")
 }
 
 // ConnectReader verify reader, configure reader to send automatic polling for card detyection and return reader instance.
 func ConnectReader(c *context.Context, reader string) (*Reader, error) {
 	if c == nil {
-		if ctx, err := context.New(); err != nil {
-			return nil, err
-		} else {
-			c = ctx
-		}
+		return nil, errors.New("context is nil")
 	}
 
 	if ok, err := c.IsValid(); err != nil || !ok {
@@ -57,11 +51,7 @@ func ConnectReader(c *context.Context, reader string) (*Reader, error) {
 // ConnectReader verify reader, configure reader to send automatic polling for card detyection and return reader instance.
 func PrepareReader(c *context.Context, reader string) error {
 	if c == nil {
-		if ctx, err := context.New(); err != nil {
-			return err
-		} else {
-			c = ctx
-		}
+		return errors.New("context is nil")
 	}
 
 	if ok, err := c.IsValid(); err != nil || !ok {
@@ -91,35 +81,36 @@ func PrepareReader(c *context.Context, reader string) error {
 	}
 	apdu := []byte{0x23, 0x00}
 	if utils.Debug {
-		fmt.Printf("request CONTROL APDU: [% 02X]\n", apdu)
+		fmt.Printf("CONTROL APDU: [% 02X]\n", apdu)
 	}
+	//resp1, err := direct.Control(3500, apdu)
 	resp1, err := direct.Control(0x42000000+2079, apdu)
 	if err != nil {
 		return err
 	}
 	if utils.Debug {
-		fmt.Printf("response CONTROL APDU: [% 02X]\n", resp1)
+		fmt.Printf("RESPONSE CONTROL APDU: [% 02X]\n", resp1)
 	}
 
 	if len(resp1) > 0 && resp1[len(resp1)-1] != (0x8F&func() byte {
-		if forceIso14443_3 {
+		if !forceIso14443_4 {
 			return 0x7F
 		}
 		return 0xFF
 	}()) {
 		apdu := []byte{0x23, 0x01, 0x8F & func() byte {
-			if forceIso14443_3 {
+			if !forceIso14443_4 {
 				return 0x7F
 			}
 			return 0xFF
 		}()}
 		if utils.Debug {
-			fmt.Printf("request CONTROL APDU: [% 02X]\n", apdu)
+			fmt.Printf("CONTROL APDU: [% 02X]\n", apdu)
 		}
 		if resp, err := direct.Control(0x42000000+2079, apdu); err != nil {
 			return err
 		} else if utils.Debug {
-			fmt.Printf("response CONTROL APDU: [% 02X]\n", resp)
+			fmt.Printf("RESPONSE CONTROL APDU: [% 02X]\n", resp)
 		}
 	}
 	direct.Disconnect(scard.LeaveCard)

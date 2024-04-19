@@ -2,6 +2,7 @@ package context
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/ebfe/scard"
@@ -53,6 +54,16 @@ func (c *Context) Release() error {
 
 // ListReaders list readers detected in context.
 func (c *Context) ListReaders() ([]string, error) {
+
+	if c.Context == nil {
+		if ctx, err := scard.EstablishContext(); err != nil {
+			return nil, err
+		} else {
+			c.Context = ctx
+		}
+	} else if ok, err := c.Context.IsValid(); err != nil || !ok {
+		fmt.Printf("error context: %s, success: %v\n", err, ok)
+	}
 
 	if c.Context == nil {
 		if ctx, err := scard.EstablishContext(); err != nil {
