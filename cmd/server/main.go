@@ -55,7 +55,9 @@ func main() {
 		cancelFunc: cancel,
 	}
 
-	runService("pcsc-pos", IsAnInteractiveSession(), svc)
+	go func() {
+		runService("pcsc-pos", IsAnInteractiveSession(), svc)
+	}()
 
 	utils.Debug = isdebug
 
@@ -143,6 +145,7 @@ func main() {
 	signal.Notify(finish, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	go func() {
+		fmt.Println("pcsc-agnostic-daemon net started ...")
 		if err := serverHttp.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listenAndServer: %s\n", err)
 		}
