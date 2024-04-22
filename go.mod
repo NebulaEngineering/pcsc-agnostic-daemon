@@ -7,5 +7,5 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/looplab/fsm v0.3.0
 	github.com/rs/cors v1.8.2
-	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/sys v0.19.0
 )
