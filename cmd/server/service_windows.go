@@ -19,7 +19,7 @@ loop:
 	for {
 		select {
 		case <-m.ctx.Done():
-
+			break loop
 		case <-tick.C:
 			// Aquí colocas la lógica de tu servicio
 		case c := <-r:
