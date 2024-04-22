@@ -55,8 +55,10 @@ func main() {
 		cancelFunc: cancel,
 	}
 
+	interactive := IsAnInteractiveSession()
+
 	go func() {
-		runService("pcsc-pos", IsAnInteractiveSession(), svc)
+		runService("pcsc-pos", interactive, svc)
 	}()
 
 	utils.Debug = isdebug
