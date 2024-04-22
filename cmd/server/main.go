@@ -1,14 +1,19 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"os/user"
+	"syscall"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/app"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/handler"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/utils"
 	"github.com/rs/cors"
@@ -19,7 +24,7 @@ var keypath string
 var port int
 var notcreate bool
 var showversion bool
-var debug bool
+var isdebug bool
 var ssl bool
 
 func init() {
@@ -28,7 +33,7 @@ func init() {
 	flag.BoolVar(&notcreate, "f", false, "don't Create files if they don't exist?")
 	flag.BoolVar(&ssl, "ssl", false, "enable ssl local service?")
 	flag.BoolVar(&showversion, "version", false, "show version")
-	flag.BoolVar(&debug, "debug", false, "show APDUs in stdout")
+	flag.BoolVar(&isdebug, "debug", false, "show APDUs in stdout")
 	flag.IntVar(&port, "port", 1216, "port in local socket to LISTEN (socket = localhost:port)")
 }
 
@@ -40,7 +45,19 @@ func main() {
 		os.Exit(2)
 	}
 
-	utils.Debug = debug
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	app.InitInstance(ctx)
+
+	svc := &myService{
+		ctx:        ctx,
+		cancelFunc: cancel,
+	}
+
+	runService("pcsc-pos", IsAnInteractiveSession(), svc)
+
+	utils.Debug = isdebug
 
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -103,20 +120,50 @@ func main() {
 	fmt.Println("pcsc-agnostic-daemon starting ...")
 	fmt.Println("pcsc-agnostic-daemon waiting for requests ...")
 
+	var serverSSL *http.Server
+
 	if ssl {
 		cert, key, err := verifyAndCreateFiles(certpath, keypath, !notcreate)
 		if err != nil {
 			log.Fatalln(err)
 		}
 		go func() {
-			serverSSL := &http.Server{
+			serverSSL = &http.Server{
 				Addr:    fmt.Sprintf(":%d", port-1),
 				Handler: corsWrapper.Handler(router),
 			}
-			log.Fatalln(serverSSL.ListenAndServeTLS(cert, key))
+
+			if err := serverSSL.ListenAndServeTLS(cert, key); err != nil && err != http.ErrServerClosed {
+				log.Fatalf("listenAndServerTLS: %s\n", err)
+			}
 		}()
 	}
 
-	log.Fatalln(serverHttp.ListenAndServe())
+	finish := make(chan os.Signal, 1)
+	signal.Notify(finish, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+
+	go func() {
+		if err := serverHttp.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listenAndServer: %s\n", err)
+		}
+	}()
+
+	for {
+		select {
+		case <-finish:
+			ctxx, cancel := context.WithTimeout(ctx, 3*time.Second)
+			defer cancel()
+			if err := serverHttp.Shutdown(ctxx); err != nil {
+				log.Printf("shutdown serverHttp: %s\n", err)
+			}
+			if ssl && serverSSL != nil {
+				if err := serverSSL.Shutdown(ctxx); err != nil {
+					log.Printf("shutdown serverSSL: %s\n", err)
+				}
+			}
+			log.Println("Servidor cerrado correctamente")
+			return
+		}
+	}
 
 }

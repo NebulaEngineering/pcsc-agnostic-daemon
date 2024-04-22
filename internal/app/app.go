@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	pcontext "context"
+
 	"github.com/looplab/fsm"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/card"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/context"
@@ -15,6 +17,7 @@ import (
 )
 
 type app struct {
+	contxt      pcontext.Context
 	ctx         *context.Context
 	cardsReader map[string]*card.Card
 	// cardsSession  map[string]*card.Card
@@ -34,28 +37,61 @@ type App interface {
 
 var instance *app
 var once sync.Once
+var lock sync.Mutex
 
 // getInstance create App
-func Instance() App {
+func InitInstance(ctx pcontext.Context) App {
 
-	once.Do(func() {
+	lock.Lock()
+	defer lock.Unlock()
+	if instance == nil {
 		instance = &app{
-			mux: sync.Mutex{},
+			contxt: ctx,
+			mux:    sync.Mutex{},
 			// cardsSession:  make(map[string]*card.Card),
 			cardsReader: make(map[string]*card.Card),
 			// sessionReader: make(map[string]string),
 		}
+	}
 
-		instance.fmachine = NewFSM()
-		instance.runFSM()
-		// var err error
-		// instance.ctx, err = context.New()
-		// if err != nil {
-		// 	log.Println(err)
-		// }
-		time.Sleep(1 * time.Second)
+	instance.fmachine = NewFSM()
+	instance.runFSM()
+	// var err error
+	// instance.ctx, err = context.New()
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	time.Sleep(1 * time.Second)
+
+	// })
+	return instance
+}
+
+func Instance() App {
+	once.Do(func() {
+		lock.Lock()
+		defer lock.Unlock()
+		if instance == nil {
+			instance = &app{
+				contxt: pcontext.Background(),
+				mux:    sync.Mutex{},
+				// cardsSession:  make(map[string]*card.Card),
+				cardsReader: make(map[string]*card.Card),
+				// sessionReader: make(map[string]string),
+			}
+
+			instance.fmachine = NewFSM()
+			instance.runFSM()
+			// var err error
+			// instance.ctx, err = context.New()
+			// if err != nil {
+			// 	log.Println(err)
+			// }
+			time.Sleep(1 * time.Second)
+		}
 	})
 	return instance
+
 }
 
 func (app *app) ListReaders() ([]string, error) {
