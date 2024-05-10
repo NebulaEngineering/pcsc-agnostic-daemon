@@ -121,6 +121,10 @@ func (c *Card) SendAPDU(data []byte) ([]byte, error) {
 	if utils.Debug {
 		fmt.Printf("APDU: [% 02X]\n", data)
 	}
+
+	if len(data) <= 0 {
+		return nil, errors.New("data is empty")
+	}
 	response, err := c.card.Transmit(data)
 	if err != nil {
 		return nil, err
