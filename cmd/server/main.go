@@ -48,6 +48,8 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	utils.Debug = isdebug
+
 	app.InitInstance(ctx)
 
 	svc := &myService{
@@ -60,8 +62,6 @@ func main() {
 	go func() {
 		runService("pcsc-pos", interactive, svc)
 	}()
-
-	utils.Debug = isdebug
 
 	router := mux.NewRouter().StrictSlash(true)
 
