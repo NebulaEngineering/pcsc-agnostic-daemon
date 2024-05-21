@@ -3,6 +3,7 @@ package card
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/ebfe/scard"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/reader"
@@ -13,6 +14,8 @@ type Card struct {
 	card      *scard.Card
 	uid       []byte
 	sessionId string
+	mux       sync.Mutex
+	connected bool
 }
 
 type StatusCode int
@@ -57,7 +60,7 @@ func ConnectCard(r *reader.Reader) (*Card, error) {
 	}
 	uid := make([]byte, len(resp)-2)
 	copy(uid, resp)
-	c := &Card{card: internalCard, uid: uid}
+	c := &Card{card: internalCard, uid: uid, connected: true, mux: sync.Mutex{}}
 
 	if !reader.IsEnForceIso14443_4() {
 		if s, err := internalCard.Status(); err != nil {
@@ -77,6 +80,11 @@ func ConnectCard(r *reader.Reader) (*Card, error) {
 
 // String print card features
 func (c *Card) String() string {
+	if !c.connected {
+		return ""
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	status, err := c.card.Status()
 	if err != nil {
 		return ""
@@ -107,6 +115,8 @@ func (c *Card) GetUID() []byte {
 
 // SetSessionID set session id of card
 func (c *Card) SetSessionID(sessionId string) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	c.sessionId = sessionId
 }
 
@@ -117,6 +127,12 @@ func (c *Card) GetSessionID() string {
 
 // SendAPDU send APDU 'data' to card through the reader and wait for a response.
 func (c *Card) SendAPDU(data []byte) ([]byte, error) {
+
+	if !c.connected {
+		return nil, errors.New("card is not connected")
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
 
 	if utils.Debug {
 		fmt.Printf("APDU: [% 02X]\n", data)
@@ -137,6 +153,12 @@ func (c *Card) SendAPDU(data []byte) ([]byte, error) {
 
 // Disconnect release card from reader
 func (c *Card) Disconnect() error {
+	if !c.connected {
+		return errors.New("card is already disconnected")
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	c.connected = false
 	if err := c.card.Disconnect(scard.LeaveCard); err != nil {
 		return err
 	}
@@ -145,6 +167,12 @@ func (c *Card) Disconnect() error {
 
 // Atr return ATR bytes of card.
 func (c *Card) Atr() ([]byte, error) {
+
+	if !c.connected {
+		return nil, errors.New("card is not connected")
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
 
 	status, err := c.card.Status()
 	if err != nil {
@@ -156,6 +184,11 @@ func (c *Card) Atr() ([]byte, error) {
 
 // Status return status's card on reader
 func (c *Card) Status() (StatusCode, error) {
+	if !c.connected {
+		return NotPresent, errors.New("card is not connected")
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
 
 	status, err := c.card.Status()
 	if err != nil {
@@ -184,6 +217,13 @@ func (c *Card) Status() (StatusCode, error) {
 
 // Transparent Session (PCSC)
 func (c *Card) TransparentSessionStart() ([]byte, error) {
+
+	if !c.connected {
+		return nil, errors.New("card is not connected")
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
 	apdu := []byte{0xFF, 0xC2, 0x00, 0x00, 0x04, 0x81, 0x00, 0x84, 0x00}
 	resp, err := c.SendAPDU(apdu)
 	if err != nil {
@@ -194,6 +234,11 @@ func (c *Card) TransparentSessionStart() ([]byte, error) {
 
 // TransparentSessionStartOnly start transparent session to send APDU
 func (c *Card) TransparentSessionStartOnly() ([]byte, error) {
+	if !c.connected {
+		return nil, errors.New("card is not connected")
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	apdu := []byte{0xFF, 0xC2, 0x00, 0x00, 0x02, 0x81, 0x00}
 	resp, err := c.SendAPDU(apdu)
 	if err != nil {
@@ -204,6 +249,11 @@ func (c *Card) TransparentSessionStartOnly() ([]byte, error) {
 
 // TransparentSessionResetRF start transparent session to send APDU
 func (c *Card) TransparentSessionResetRF() ([]byte, error) {
+	if !c.connected {
+		return nil, errors.New("card is not connected")
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	apdu1 := []byte{0xFF, 0xC2, 0x00, 0x00, 0x02, 0x83, 0x00}
 	resp, err := c.SendAPDU(apdu1)
 	if err != nil {
@@ -219,6 +269,11 @@ func (c *Card) TransparentSessionResetRF() ([]byte, error) {
 
 // TransparentSessionEnd finish transparent session
 func (c *Card) TransparentSessionEnd() ([]byte, error) {
+	if !c.connected {
+		return nil, errors.New("card is not connected")
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	apdu := []byte{0xFF, 0xC2, 0x00, 0x00, 0x02, 0x82, 0x00, 0x00}
 	resp, err := c.SendAPDU(apdu)
 	if err != nil {
@@ -229,6 +284,11 @@ func (c *Card) TransparentSessionEnd() ([]byte, error) {
 
 // Switch1444_4 switch channel reader to send ISO 1444-4 APDU
 func (c *Card) Switch1444_4() ([]byte, error) {
+	if !c.connected {
+		return nil, errors.New("card is not connected")
+	}
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	apdu := []byte{0xff, 0xc2, 0x00, 0x02, 0x04, 0x8F, 0x02, 0x00, 0x04}
 	resp, err := c.SendAPDU(apdu)
 	if err != nil {

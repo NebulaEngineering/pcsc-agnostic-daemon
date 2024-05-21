@@ -87,6 +87,7 @@ func PrepareReader(c *context.Context, reader string) error {
 	if err != nil {
 		return err
 	}
+	defer direct.Disconnect(scard.LeaveCard)
 	apdu := []byte{0x23, 0x00}
 	if utils.Debug {
 		fmt.Printf("CONTROL APDU: [% 02X]\n", apdu)
@@ -120,7 +121,6 @@ func PrepareReader(c *context.Context, reader string) error {
 			fmt.Printf("RESPONSE CONTROL APDU: [% 02X]\n", resp)
 		}
 	}
-	direct.Disconnect(scard.LeaveCard)
 	// }
 
 	return nil

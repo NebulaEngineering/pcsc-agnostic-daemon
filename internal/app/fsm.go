@@ -99,7 +99,7 @@ func (app *app) runFSM() {
 		defer func() {
 			app.frun = false
 		}()
-		tick := time.NewTicker(100 * time.Millisecond)
+		tick := time.NewTicker(300 * time.Millisecond)
 		defer tick.Stop()
 		for {
 			select {
