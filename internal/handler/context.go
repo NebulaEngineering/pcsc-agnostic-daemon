@@ -22,6 +22,8 @@ var tn = time.Now()
 
 func GetState(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Printf("GetState, REQUEST\n")
+
 	from := time.Since(tn)
 
 	str := fmt.Sprintf("%dd, %d:%d:%d", int(from.Hours())/24, int(from.Hours()), int(from.Minutes()), int(from.Seconds()))
@@ -33,6 +35,8 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListAllReaders(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Printf("ListAllReaders, REQUEST\n")
 
 	readers, err := app.Instance().ListReaders()
 	if err != nil {
@@ -61,12 +65,15 @@ func ListAllReaders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("ListAllReaders, response: %s\n", body)
+
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s", body)
 }
 
 func ReaderInformation(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Printf("ReaderInformation, REQUEST\n")
 	vars := mux.Vars(r)
 
 	id, ok := vars["id"]
@@ -96,6 +103,8 @@ func ReaderInformation(w http.ResponseWriter, r *http.Request) {
 }
 
 func CardInReader(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Printf("CardInReader, REQUEST\n")
 
 	vars := mux.Vars(r)
 
@@ -141,11 +150,15 @@ func CardInReader(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s", err)
 	}
 
+	fmt.Printf("CardInReader, response: %s\n", body)
+
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s", body)
 }
 
 func SendAPUs(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Printf("SendAPUs, REQUEST\n")
 
 	vars := mux.Vars(r)
 
@@ -233,6 +246,8 @@ func SendAPUs(w http.ResponseWriter, r *http.Request) {
 }
 
 func SendAPU(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Printf("SendAPU, REQUEST\n")
 
 	vars := mux.Vars(r)
 

@@ -83,8 +83,8 @@ func (c *Card) String() string {
 	if !c.connected {
 		return ""
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	// c.mux.Lock()
+	// defer c.mux.Unlock()
 	status, err := c.card.Status()
 	if err != nil {
 		return ""
@@ -115,8 +115,8 @@ func (c *Card) GetUID() []byte {
 
 // SetSessionID set session id of card
 func (c *Card) SetSessionID(sessionId string) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	// c.mux.Lock()
+	// defer c.mux.Unlock()
 	c.sessionId = sessionId
 }
 
@@ -221,8 +221,8 @@ func (c *Card) TransparentSessionStart() ([]byte, error) {
 	if !c.connected {
 		return nil, errors.New("card is not connected")
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	// c.mux.Lock()
+	// defer c.mux.Unlock()
 
 	apdu := []byte{0xFF, 0xC2, 0x00, 0x00, 0x04, 0x81, 0x00, 0x84, 0x00}
 	resp, err := c.SendAPDU(apdu)
@@ -237,8 +237,8 @@ func (c *Card) TransparentSessionStartOnly() ([]byte, error) {
 	if !c.connected {
 		return nil, errors.New("card is not connected")
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	// c.mux.Lock()
+	// defer c.mux.Unlock()
 	apdu := []byte{0xFF, 0xC2, 0x00, 0x00, 0x02, 0x81, 0x00}
 	resp, err := c.SendAPDU(apdu)
 	if err != nil {
@@ -252,8 +252,8 @@ func (c *Card) TransparentSessionResetRF() ([]byte, error) {
 	if !c.connected {
 		return nil, errors.New("card is not connected")
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	// c.mux.Lock()
+	// defer c.mux.Unlock()
 	apdu1 := []byte{0xFF, 0xC2, 0x00, 0x00, 0x02, 0x83, 0x00}
 	resp, err := c.SendAPDU(apdu1)
 	if err != nil {
@@ -272,8 +272,8 @@ func (c *Card) TransparentSessionEnd() ([]byte, error) {
 	if !c.connected {
 		return nil, errors.New("card is not connected")
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	// c.mux.Lock()
+	// defer c.mux.Unlock()
 	apdu := []byte{0xFF, 0xC2, 0x00, 0x00, 0x02, 0x82, 0x00, 0x00}
 	resp, err := c.SendAPDU(apdu)
 	if err != nil {
@@ -287,8 +287,8 @@ func (c *Card) Switch1444_4() ([]byte, error) {
 	if !c.connected {
 		return nil, errors.New("card is not connected")
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	// c.mux.Lock()
+	// defer c.mux.Unlock()
 	apdu := []byte{0xff, 0xc2, 0x00, 0x02, 0x04, 0x8F, 0x02, 0x00, 0x04}
 	resp, err := c.SendAPDU(apdu)
 	if err != nil {

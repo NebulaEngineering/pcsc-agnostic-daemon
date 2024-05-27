@@ -93,13 +93,15 @@ func (app *app) runFSM() {
 	}
 	app.frun = true
 	var readers []scard.ReaderState
-	lastVerify := time.Now().Add(-30 * time.Second)
+	lastVerifyOpen := time.Now().Add(-30 * time.Second)
+	lastVerifyList := time.Now().Add(-30 * time.Second)
+	lastVerifyAwait := time.Now().Add(-30 * time.Second)
 	currentState := ""
 	go func() {
 		defer func() {
 			app.frun = false
 		}()
-		tick := time.NewTicker(300 * time.Millisecond)
+		tick := time.NewTicker(30 * time.Millisecond)
 		defer tick.Stop()
 		for {
 			select {
@@ -114,8 +116,17 @@ func (app *app) runFSM() {
 				switch app.fmachine.Current() {
 				case sOpen:
 					func() {
+						if time.Since(lastVerifyOpen) < 2*time.Second {
+							// fmt.Printf("time verify: %v\n", time.Since(lastVerifyList))
+							return
+						}
+						fmt.Printf("time verify: %v\n", time.Since(lastVerifyOpen))
+						lastVerifyOpen = time.Now()
 						app.mux.Lock()
 						defer app.mux.Unlock()
+						if app.ctx != nil {
+							app.ctx.Release()
+						}
 						ctx, err := context.New()
 						if err != nil {
 							fmt.Println(err)
@@ -147,16 +158,17 @@ func (app *app) runFSM() {
 					}()
 				case sList:
 					if err := func() error {
+
+						if time.Since(lastVerifyList) < 3*time.Second {
+							return fmt.Errorf("time verify: %v", time.Since(lastVerifyList))
+						}
+						lastVerifyList = time.Now()
+
 						app.mux.Lock()
 						defer app.mux.Unlock()
 						if app.ctx == nil {
 							return fmt.Errorf("app context is nil")
 						}
-						if time.Since(lastVerify) < 3*time.Second {
-
-							return fmt.Errorf("time verify: %v", time.Since(lastVerify))
-						}
-						lastVerify = time.Now()
 						rds, err := app.ctx.ListReaders()
 						if err != nil {
 
@@ -201,10 +213,11 @@ func (app *app) runFSM() {
 					}
 				case sWait:
 					func() {
-						app.mux.Lock()
-						defer app.mux.Unlock()
-						if time.Since(lastVerify) > 3*time.Second {
-							lastVerify = time.Now()
+						if time.Since(lastVerifyAwait) > 3*time.Second {
+							lastVerifyAwait = time.Now()
+							app.mux.Lock()
+							defer app.mux.Unlock()
+
 							if ok, err := app.ctx.IsValid(); err != nil || !ok {
 								fmt.Printf("error context: %s, success: %v\n", err, ok)
 								app.fmachine.Event(eClosed)

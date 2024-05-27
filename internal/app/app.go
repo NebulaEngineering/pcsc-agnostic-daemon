@@ -125,6 +125,9 @@ func (app *app) ConnectCardInReader(nameReader string) (*card.Card, error) {
 	if app.ctx == nil {
 		return nil, fmt.Errorf("smardcard context is nil")
 	}
+	if ok, err := app.ctx.IsValid(); err != nil || !ok {
+		return nil, fmt.Errorf("context is not valid, err: %w", err)
+	}
 
 	r, err := reader.ConnectReader(app.ctx, nameReader)
 	if err != nil {
@@ -154,6 +157,9 @@ func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
 		}
 
 		return v, nil
+	}
+	if ok, err := app.ctx.IsValid(); err != nil || !ok {
+		return nil, fmt.Errorf("context is not valid, err: %w", err)
 	}
 
 	r, err := reader.ConnectReader(app.ctx, nameReader)
