@@ -21,7 +21,7 @@ var disableSession bool
 
 func init() {
 	flag.BoolVar(&disableSession, "disable-sessions", false, "disable session for card")
-	flag.Parse()
+	// flag.Parse()
 }
 
 type app struct {
