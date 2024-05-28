@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"strings"
 	"sync"
@@ -15,6 +16,13 @@ import (
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/reader"
 	"github.com/nebulaengineering/pcsc-agnostic-daemon/utils"
 )
+
+var disableSession bool
+
+func init() {
+	flag.BoolVar(&disableSession, "disable-sessions", false, "disable session for card")
+	flag.Parse()
+}
 
 type app struct {
 	contxt      pcontext.Context
@@ -186,13 +194,17 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool,
 				// delete(app.cardsReader, nameReader)
 				return fmt.Errorf("error status: %w", err)
 			} else {
-				if len(c.GetSessionID()) <= 0 {
-					c.SetSessionID(sessionId)
-				} else if !strings.EqualFold(sessionId, c.GetSessionID()) {
-					c.Disconnect()
-					return fmt.Errorf("session id not match (%s)", sessionId)
+				if !disableSession {
+					if len(c.GetSessionID()) <= 0 {
+						c.SetSessionID(sessionId)
+					} else if !strings.EqualFold(sessionId, c.GetSessionID()) {
+						c.Disconnect()
+						return fmt.Errorf("session id not match (%s)", sessionId)
+					}
+					cardx = c
+				} else {
+					cardx = c
 				}
-				cardx = c
 				return nil
 			}
 		}
