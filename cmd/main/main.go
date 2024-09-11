@@ -25,7 +25,7 @@ func main() {
 
 		if err := func() error {
 			if c == nil {
-				c, err = app.Instance().ConnectCardInReader(rds[0])
+				c, err = app.Instance().ConnectCardInReader(rds[1])
 				if err != nil {
 					return err
 				}

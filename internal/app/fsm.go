@@ -218,6 +218,7 @@ func (app *app) runFSM() {
 							app.mux.Lock()
 							defer app.mux.Unlock()
 
+							/**/
 							if ok, err := app.ctx.IsValid(); err != nil || !ok {
 								fmt.Printf("error context: %s, success: %v\n", err, ok)
 								app.fmachine.Event(eClosed)
@@ -257,6 +258,7 @@ func (app *app) runFSM() {
 									// // 	fmt.Printf("reader: %q\n", r.Reader)
 								}
 							}
+							/**/
 							// fmt.Printf("readers state: %+v\n", readers)
 						}
 					}()

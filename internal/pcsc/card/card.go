@@ -3,6 +3,7 @@ package card
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/ebfe/scard"
@@ -50,17 +51,23 @@ func ConnectCard(r *reader.Reader) (*Card, error) {
 		return nil, err
 	}
 
-	resp, err := internalCard.Transmit([]byte{0xFF, 0xCA, 0x00, 0x00, 0x00})
-	if err != nil {
-		return nil, err
-	} else {
-		if len(resp) <= 2 {
-			return nil, errors.New("error on get UID")
+	c := &Card{card: internalCard, connected: true, mux: sync.Mutex{}}
+
+	if strings.Contains(r.Name(), "PICC") {
+		resp, err := internalCard.Transmit([]byte{0xFF, 0xCA, 0x00, 0x00, 0x00})
+		if err != nil {
+			c.Disconnect()
+			return nil, err
+		} else {
+			if len(resp) <= 2 {
+				c.Disconnect()
+				return nil, errors.New("error on get UID")
+			}
 		}
+		uid := make([]byte, len(resp)-2)
+		copy(uid, resp)
+		c.uid = uid
 	}
-	uid := make([]byte, len(resp)-2)
-	copy(uid, resp)
-	c := &Card{card: internalCard, uid: uid, connected: true, mux: sync.Mutex{}}
 
 	if !reader.IsEnForceIso14443_4() {
 		if s, err := internalCard.Status(); err != nil {

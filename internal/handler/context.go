@@ -123,7 +123,7 @@ func CardInReader(w http.ResponseWriter, r *http.Request) {
 
 	card, err := app.Instance().VerifyCardInReader(nameReader)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("error VerifyCardInReader: %s\n", err)
 		resp := dto.NewSmartCardStatus(nil, dto.NotPresent)
 		body, err := json.Marshal(resp)
 		if err != nil {
