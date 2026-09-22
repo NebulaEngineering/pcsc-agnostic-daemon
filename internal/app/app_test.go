@@ -3,8 +3,11 @@ package app
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"testing"
 	"time"
+
+	"github.com/nebulaengineering/pcsc-agnostic-daemon/internal/pcsc/card"
 )
 
 func TestApp_SendAPUs(t *testing.T) {
@@ -66,6 +69,23 @@ func TestApp_SendAPUs(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestVerifyCardInReaderConcurrentAccess(t *testing.T) {
+	appx := &app{
+		cardsReader: map[string]*card.Card{"reader": {}},
+	}
+
+	const requests = 32
+	var wg sync.WaitGroup
+	wg.Add(requests)
+	for i := 0; i < requests; i++ {
+		go func() {
+			defer wg.Done()
+			_, _ = appx.VerifyCardInReader("reader")
+		}()
+	}
+	wg.Wait()
 }
 
 func Test_app_VerifyCardInReader(t *testing.T) {

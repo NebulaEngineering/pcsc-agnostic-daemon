@@ -130,6 +130,12 @@ func (app *app) ReaderInformation(key string) (string, error) {
 func (app *app) ConnectCardInReader(nameReader string) (*card.Card, error) {
 	app.mux.Lock()
 	defer app.mux.Unlock()
+	return app.connectCardInReaderLocked(nameReader)
+}
+
+// connectCardInReaderLocked connects to the card and updates cardsReader.
+// The caller must hold app.mux.
+func (app *app) connectCardInReaderLocked(nameReader string) (*card.Card, error) {
 	if app.ctx == nil {
 		return nil, fmt.Errorf("smardcard context is nil")
 	}
@@ -156,6 +162,9 @@ func (app *app) ConnectCardInReader(nameReader string) (*card.Card, error) {
 }
 
 func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
+	app.mux.Lock()
+	defer app.mux.Unlock()
+
 	if v, ok := app.cardsReader[nameReader]; ok {
 		// fmt.Println("XXXXXX")
 		if _, err := v.Status(); err != nil {
@@ -165,6 +174,9 @@ func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
 		}
 
 		return v, nil
+	}
+	if app.ctx == nil {
+		return nil, fmt.Errorf("smardcard context is nil")
 	}
 	if ok, err := app.ctx.IsValid(); err != nil || !ok {
 		return nil, fmt.Errorf("context is not valid, err: %w", err)
@@ -176,7 +188,7 @@ func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
 		return nil, fmt.Errorf("error ConnectReader: %w", err)
 	}
 
-	return app.ConnectCardInReader(r.Name())
+	return app.connectCardInReaderLocked(r.Name())
 }
 
 func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool, data ...[]byte) (<-chan []byte, error) {
@@ -184,6 +196,8 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool,
 	// fmt.Printf("data: %X\n", data)
 	var cardx *card.Card
 	// var err error
+	app.mux.Lock()
+	defer app.mux.Unlock()
 
 	if err := func() error {
 		if c, ok := app.cardsReader[nameReader]; !ok {
@@ -211,7 +225,7 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool,
 		return fmt.Errorf("error card not found")
 	}(); err != nil {
 		fmt.Println(err)
-		card, err := app.ConnectCardInReader(nameReader)
+		card, err := app.connectCardInReaderLocked(nameReader)
 		if err != nil {
 			fmt.Printf("erro: %s\n", err)
 			return nil, err
