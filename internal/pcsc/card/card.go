@@ -122,24 +122,25 @@ func (c *Card) GetUID() []byte {
 
 // SetSessionID set session id of card
 func (c *Card) SetSessionID(sessionId string) {
-	// c.mux.Lock()
-	// defer c.mux.Unlock()
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	c.sessionId = sessionId
 }
 
 // GetSessionID return session id of card
 func (c *Card) GetSessionID() string {
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	return c.sessionId
 }
 
 // SendAPDU send APDU 'data' to card through the reader and wait for a response.
 func (c *Card) SendAPDU(data []byte) ([]byte, error) {
-
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	if !c.connected {
 		return nil, errors.New("card is not connected")
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
 
 	if utils.Debug {
 		fmt.Printf("APDU: [% 02X]\n", data)
@@ -160,11 +161,11 @@ func (c *Card) SendAPDU(data []byte) ([]byte, error) {
 
 // Disconnect release card from reader
 func (c *Card) Disconnect() error {
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	if !c.connected {
 		return errors.New("card is already disconnected")
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
 	c.connected = false
 	if err := c.card.Disconnect(scard.LeaveCard); err != nil {
 		return err
@@ -174,12 +175,11 @@ func (c *Card) Disconnect() error {
 
 // Atr return ATR bytes of card.
 func (c *Card) Atr() ([]byte, error) {
-
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	if !c.connected {
 		return nil, errors.New("card is not connected")
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
 
 	status, err := c.card.Status()
 	if err != nil {
@@ -191,11 +191,11 @@ func (c *Card) Atr() ([]byte, error) {
 
 // Status return status's card on reader
 func (c *Card) Status() (StatusCode, error) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	if !c.connected {
 		return NotPresent, errors.New("card is not connected")
 	}
-	c.mux.Lock()
-	defer c.mux.Unlock()
 
 	status, err := c.card.Status()
 	if err != nil {

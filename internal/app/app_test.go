@@ -88,6 +88,22 @@ func TestVerifyCardInReaderConcurrentAccess(t *testing.T) {
 	wg.Wait()
 }
 
+func TestRemoveCardIfCurrentLockedKeepsNewerSessionCard(t *testing.T) {
+	oldCard := &card.Card{}
+	newCard := &card.Card{}
+	appx := &app{cardsReader: map[string]*card.Card{"reader": newCard}}
+
+	appx.removeCardIfCurrentLocked("reader", oldCard)
+	if got := appx.cardsReader["reader"]; got != newCard {
+		t.Fatal("a completed request removed the card from a newer session")
+	}
+
+	appx.removeCardIfCurrentLocked("reader", newCard)
+	if _, ok := appx.cardsReader["reader"]; ok {
+		t.Fatal("the current card was not removed")
+	}
+}
+
 func Test_app_VerifyCardInReader(t *testing.T) {
 	type fields struct {
 		appx App

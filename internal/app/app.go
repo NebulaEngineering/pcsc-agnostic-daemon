@@ -4,7 +4,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -161,6 +160,15 @@ func (app *app) connectCardInReaderLocked(nameReader string) (*card.Card, error)
 	return cardx, nil
 }
 
+// removeCardIfCurrentLocked prevents a finishing request from removing a card
+// that a newer session has already connected for the same reader.
+// The caller must hold app.mux.
+func (app *app) removeCardIfCurrentLocked(nameReader string, expected *card.Card) {
+	if current, ok := app.cardsReader[nameReader]; ok && current == expected {
+		delete(app.cardsReader, nameReader)
+	}
+}
+
 func (app *app) VerifyCardInReader(nameReader string) (*card.Card, error) {
 	app.mux.Lock()
 	defer app.mux.Unlock()
@@ -200,29 +208,27 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool,
 	defer app.mux.Unlock()
 
 	if err := func() error {
-		if c, ok := app.cardsReader[nameReader]; !ok {
+		c, ok := app.cardsReader[nameReader]
+		if !ok {
 			return fmt.Errorf("card in reader not found (%s)", nameReader)
-		} else {
-			if _, err := c.Status(); err != nil {
-				c.Disconnect()
-				// delete(app.cardsReader, nameReader)
-				return fmt.Errorf("error status: %w", err)
-			} else {
-				if !disableSession {
-					if len(c.GetSessionID()) <= 0 {
-						c.SetSessionID(sessionId)
-					} else if !strings.EqualFold(sessionId, c.GetSessionID()) {
-						c.Disconnect()
-						return fmt.Errorf("session id not match (%s)", sessionId)
-					}
-					cardx = c
-				} else {
-					cardx = c
-				}
-				return nil
-			}
 		}
-		return fmt.Errorf("error card not found")
+		if _, err := c.Status(); err != nil {
+			c.Disconnect()
+			delete(app.cardsReader, nameReader)
+			return fmt.Errorf("error status: %w", err)
+		}
+		if !disableSession {
+			if currentSessionID := c.GetSessionID(); currentSessionID != "" && currentSessionID != sessionId {
+				// A new client session replaces the old one, even if the old
+				// client did not explicitly close its session.
+				c.Disconnect()
+				delete(app.cardsReader, nameReader)
+				return fmt.Errorf("session replaced (%s -> %s)", currentSessionID, sessionId)
+			}
+			c.SetSessionID(sessionId)
+		}
+		cardx = c
+		return nil
 	}(); err != nil {
 		fmt.Println(err)
 		card, err := app.connectCardInReaderLocked(nameReader)
@@ -231,10 +237,10 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool,
 			return nil, err
 		}
 
-		card.SetSessionID(sessionId)
+		if !disableSession {
+			card.SetSessionID(sessionId)
+		}
 		cardx = card
-
-		app.cardsReader[nameReader] = cardx
 	}
 
 	// // app.cardsReader[nameReader] = cardx
@@ -257,8 +263,9 @@ func (app *app) SendAPUs(nameReader, sessionId string, closeSession, debug bool,
 				if cardz != nil {
 					cardz.Disconnect()
 				}
-				// delete(app.cardsSession, sessionId)
-				delete(app.cardsReader, nameReader)
+				// Do not remove a card that was connected by a newer session
+				// while this request was waiting for the application mutex.
+				app.removeCardIfCurrentLocked(nameReader, cardz)
 			}
 		}()
 		if app.ctx == nil {
